@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- PALETA PRINCIPAL -->
+    <!-- Verde natural - confianza, salud -->
+    <color name="green_100">#E6F4E6</color>
+    <color name="green_200">#C8EAC8</color>
+    <color name="green_300">#A3D9A5</color>
+    <color name="green_400">#6FCF74</color>
+    <color name="green_500">#4CAF50</color>
+    <color name="green_600">#43A047</color>
+    <color name="green_700">#388E3C</color>
+    <color name="green_800">#2E7D32</color>
+    <color name="green_900">#1B5E20</color>
+    <color name="green_hover">#5BC95F</color>
+
+    <!-- Crema - fondo base, limpio, natural -->
+    <color name="cream_100">#FFFFFF</color>
+    <color name="cream_200">#FDFDFB</color>
+    <color name="cream_300">#F6F5F0</color>
+    <color name="cream_400">#EFEDE7</color>
+    <color name="cream_500">#E5E3DC</color>
+    <color name="cream_600">#D6D4CC</color>
+    <color name="cream_hover">#FAFAF3</color>
+
+    <!-- Neutros oscuros -->
+    <color name="black_100">#E0E0E0</color>
+    <color name="black_200">#BDBDBD</color>
+    <color name="black_300">#9E9E9E</color>
+    <color name="black_400">#757575</color>
+    <color name="black_500">#616161</color>
+    <color name="black_600">#424242</color>
+    <color name="black_700">#212121</color>
+    <color name="black">#000000</color>
+
+    <!-- Amarillo suave - energía, desayuno -->
+    <color name="yellow_100">#FFF9DB</color>
+    <color name="yellow_200">#FFF3B0</color>
+    <color name="yellow_300">#FFE066</color>
+    <color name="yellow_400">#FFD43B</color>
+    <color name="yellow_500">#FCC419</color>
+    <color name="yellow_hover">#FFD333</color>
+
+    <!-- Rojo frutal - alertas, frutas, acción -->
+    <color name="red_100">#FFE5E5</color>
+    <color name="red_200">#FFB3B3</color>
+    <color name="red_300">#FF7A7A</color>
+    <color name="red_400">#FF5252</color>
+    <color name="red_500">#FF3B3B</color>
+    <color name="red_hover">#FF6363</color>
+
+    <!-- Naranja cálido - snacks, energía -->
+    <color name="orange_100">#FFF2E0</color>
+    <color name="orange_200">#FFDEB8</color>
+    <color name="orange_300">#FFBE76</color>
+    <color name="orange_400">#FFA94D</color>
+    <color name="orange_500">#FF8C00</color>
+    <color name="orange_hover">#FF9A33</color>
+
+    <!-- Azul fresco - hidratación, tips, descanso -->
+    <color name="blue_100">#E0F7FA</color>
+    <color name="blue_200">#B2EBF2</color>
+    <color name="blue_300">#80DEEA</color>
+    <color name="blue_400">#4DD0E1</color>
+    <color name="blue_500">#00BCD4</color>
+    <color name="blue_hover">#26C6DA</color>
+
+    <!-- Extras -->
+    <color name="accent_green_lime">#D4ED9E</color>
+    <color name="accent_beige_soft">#F4EBD0</color>
+    <color name="accent_leaf">#A8D5BA</color>
+
+</resources>

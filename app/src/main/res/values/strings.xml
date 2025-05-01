@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NutriPlan</string>
+    <string name="register_title">Pille la movida: ¡cocina sabroso y pásela bueno!</string>
+    <string name="full_name">¿Cómo se llama, mi llave?</string>
+    <string name="email">Échele su correo, pilas</string>
+    <string name="password">Clave secreta, que no la sepa ni su tía</string>
+    <string name="confirm_password">Confirme la clave, no se me embolate</string>
+    <string name="height">¿Cuánto mide, campeón? (cm)</string>
+    <string name="weight">¿Y cuánto pesa el costal? (kg)</string>
+    <string name="age">¿Cuántos diciembres lleva encima?</string>
+    <string name="terms_and_conditions">Dele check si está de acuerdo con la vuelta</string>
+    <string name="register_button">¡Hágale, regístreme pues!</string>
+    <string name="registering">Espere un tantico… Registrándolo</string>
+    <string name="login_button">Ya tengo ficha, voy a entrar</string>
+    <string name="error_password_mismatch">¡Ojo! Las claves no cuajan</string>
+    <string name="error_terms_not_accepted">Primero acepte las reglas del juego, socio</string>
+    <string name="error_registration_failed">Se nos embolató el registro: %s</string>
+    <string name="error_network">Uy, no… no hay señal, qué mamera</string>
+    <string name="error_email_taken">Parce, ese correo ya lo madrugaron</string>
+    <string name="logo_desc">Logo bien bacano de NutriPlan</string>
+</resources>
