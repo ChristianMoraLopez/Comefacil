@@ -1,6 +1,5 @@
 package com.christian.nutriplan.ui.screens
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,15 +17,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.christian.nutriplan.R
+import com.christian.nutriplan.network.UserRepository
 import com.christian.nutriplan.ui.components.PrimaryButton
 import com.christian.nutriplan.ui.components.SecondaryButton
 import com.christian.nutriplan.ui.theme.Cream400
 import com.christian.nutriplan.ui.theme.NutriPlanTheme
 import kotlinx.coroutines.launch
-import DatabaseHelper
+
 @Composable
 fun RegisterScreen(
-    databaseHelper: DatabaseHelper, // Recibimos DatabaseHelper como parámetro
+    userRepository: UserRepository,
     onRegisterSuccess: () -> Unit,
     onLoginClick: () -> Unit
 ) {
@@ -77,7 +77,7 @@ fun RegisterScreen(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
-                // Datos personales
+                // Personal data fields
                 OutlinedTextField(
                     value = nombre,
                     onValueChange = { nombre = it },
@@ -123,29 +123,8 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = altura,
-                    onValueChange = { altura = it },
-                    label = { Text(stringResource(R.string.height)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
 
-                Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = peso,
-                    onValueChange = { peso = it },
-                    label = { Text(stringResource(R.string.weight)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -162,7 +141,7 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Términos y condiciones
+                // Terms and conditions
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -210,18 +189,22 @@ fun RegisterScreen(
 
                         isLoading = true
                         coroutineScope.launch {
-                            val result = databaseHelper.registerUser( // Usamos el databaseHelper inyectado
+                            val result = userRepository.registerUser(
                                 nombre = nombre,
                                 email = email,
-                                password = password,
-                                aceptaTerminos = termsAccepted
+                                contrasena = password,
+                                aceptaTerminos = termsAccepted,
+
                             )
                             isLoading = false
 
                             if (result.isSuccess) {
                                 onRegisterSuccess()
                             } else {
-                                errorMessage = result.exceptionOrNull()?.message ?: "error_network"
+                                errorMessage = when (result.exceptionOrNull()?.message) {
+                                    "Email already in use" -> "error_email_taken"
+                                    else -> "error_network"
+                                }
                             }
                         }
                     },
@@ -239,31 +222,15 @@ fun RegisterScreen(
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun RegisterScreenPreview() {
     NutriPlanTheme {
-        // --- ADVERTENCIA: Esto probablemente fallará en runtime ---
-        val context = LocalContext.current
-        val dbHelperInstance : DatabaseHelper
-        try {
-            // Intenta obtener la instancia. Requiere que initDbCredentials
-            // se haya llamado ANTES y que el contexto/DB funcionen.
-            // Muy improbable en un entorno de Preview.
-            dbHelperInstance = DatabaseHelper.getInstance(context)
-        } catch (e: Exception) {
-            // Es casi seguro que getInstance fallará aquí.
-            // No se puede renderizar el preview sin una instancia válida o un mock.
-            Text("Preview failed: Cannot initialize DatabaseHelper instance.")
-            return@NutriPlanTheme // Salir temprano
-        }
-        // --- Fin de la Advertencia ---
-
         RegisterScreen(
+            userRepository = UserRepository(), // Mock repository for preview
             onRegisterSuccess = {},
-            onLoginClick = {},
-            // Pasas la instancia obtenida (si no falló antes)
-            databaseHelper = dbHelperInstance
+            onLoginClick = {}
         )
     }
 }

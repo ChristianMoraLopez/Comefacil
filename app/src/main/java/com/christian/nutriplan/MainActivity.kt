@@ -4,30 +4,35 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import DatabaseHelper
+import com.christian.nutriplan.network.ApiClient
+import com.christian.nutriplan.network.UserRepository
 import com.christian.nutriplan.ui.navigation.AppNavigation
 import com.christian.nutriplan.ui.theme.NutriPlanTheme
+import kotlinx.coroutines.DelicateCoroutinesApi
 
 class MainActivity : ComponentActivity() {
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inicializar credenciales de la base de datos (solo una vez)
-        // TODO: En producción, usar un usuario limitado (ej. app_user) y obtener credenciales de forma segura
-        DatabaseHelper.initDbCredentials(
-            context = this,
-            user = "christian", // Cambiar a app_user en producción
-            password = "4682Oscuridad" // Cambiar a contraseña de app_user
-        )
+
 
         setContent {
             NutriPlanTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation()
+                    // Create repository instances
+                    val userRepository = UserRepository()
+
+                    // Start app navigation
+                    AppNavigation(
+                        userRepository = userRepository
+                    )
                 }
             }
         }

@@ -5,7 +5,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import DatabaseHelper
+import com.christian.nutriplan.network.UserRepository
 import com.christian.nutriplan.ui.screens.HomeScreen
 import com.christian.nutriplan.ui.screens.LoginScreen
 import com.christian.nutriplan.ui.screens.RegisterScreen
@@ -14,11 +14,13 @@ object NavRoutes {
     const val HOME = "home"
     const val LOGIN = "login"
     const val REGISTER = "register"
-    const val DASHBOARD = "dashboard" // Nueva ruta para después del registro/login
+    const val DASHBOARD = "dashboard"
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    userRepository: UserRepository = UserRepository() // Default parameter for preview/testing
+) {
     val navController = rememberNavController()
     val context = LocalContext.current
 
@@ -34,14 +36,17 @@ fun AppNavigation() {
 
         composable(NavRoutes.LOGIN) {
             LoginScreen(
-                onLoginSuccess = { navController.navigate(NavRoutes.DASHBOARD) },
+                userRepository = userRepository,
+                onLoginSuccess = { navController.navigate(NavRoutes.DASHBOARD) {
+                    popUpTo(NavRoutes.HOME) { inclusive = true }
+                }},
                 onRegisterClick = { navController.navigate(NavRoutes.REGISTER) }
             )
         }
 
         composable(NavRoutes.REGISTER) {
             RegisterScreen(
-                databaseHelper = DatabaseHelper.getInstance(context),
+                userRepository = userRepository,
                 onRegisterSuccess = {
                     navController.navigate(NavRoutes.DASHBOARD) {
                         popUpTo(NavRoutes.HOME) { inclusive = true }
@@ -55,9 +60,12 @@ fun AppNavigation() {
         }
 
         composable(NavRoutes.DASHBOARD) {
-            // Aquí iría tu pantalla principal después del login/registro
             DashboardScreen(
-                onLogout = { navController.navigate(NavRoutes.HOME) }
+                onLogout = {
+                    navController.navigate(NavRoutes.HOME) {
+                        popUpTo(NavRoutes.DASHBOARD) { inclusive = true }
+                    }
+                }
             )
         }
     }

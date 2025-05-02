@@ -66,6 +66,15 @@ dependencies {
     implementation(libs.postgresql)
     implementation(libs.bcrypt)
 
+// Ktor Client para conectar con el backend
+    implementation("io.ktor:ktor-client-core:2.3.12")
+    implementation("io.ktor:ktor-client-cio:2.3.12")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+
+
+    implementation("org.jetbrains.exposed:exposed-java-time:0.44.1")
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
