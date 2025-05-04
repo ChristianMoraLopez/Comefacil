@@ -1,7 +1,10 @@
 package com.christian.nutriplan.models
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 
+@Serializable
 data class Usuario(
     val usuarioId: Int? = null,
     val nombre: String,
@@ -11,7 +14,7 @@ data class Usuario(
     val rol: String = "usuario",
     val fechaRegistro: String = LocalDateTime.now().toString()
 )
-
+@Serializable
 data class UsuarioResponse(
     val usuarioId: Int,
     val nombre: String,
@@ -21,7 +24,8 @@ data class UsuarioResponse(
     val aceptaTerminos: Boolean
 )
 
+@Serializable
 data class Credentials(
     val email: String,
-    val password: String
+    @SerialName("contrasena") val password: String
 )

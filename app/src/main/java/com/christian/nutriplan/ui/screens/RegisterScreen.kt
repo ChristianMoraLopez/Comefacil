@@ -16,6 +16,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.christian.nutriplan.R
 import com.christian.nutriplan.network.UserRepository
 import com.christian.nutriplan.ui.components.PrimaryButton
@@ -23,13 +24,14 @@ import com.christian.nutriplan.ui.components.SecondaryButton
 import com.christian.nutriplan.ui.theme.Cream400
 import com.christian.nutriplan.ui.theme.NutriPlanTheme
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 @Composable
 fun RegisterScreen(
-    userRepository: UserRepository,
     onRegisterSuccess: () -> Unit,
     onLoginClick: () -> Unit
 ) {
+    val userRepository: UserRepository = koinInject() // Inyección con Koin
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -123,8 +125,29 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                OutlinedTextField(
+                    value = altura,
+                    onValueChange = { altura = it },
+                    label = { Text("Altura (cm)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
 
+                Spacer(modifier = Modifier.height(16.dp))
 
+                OutlinedTextField(
+                    value = peso,
+                    onValueChange = { peso = it },
+                    label = { Text("Peso (kg)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -193,8 +216,7 @@ fun RegisterScreen(
                                 nombre = nombre,
                                 email = email,
                                 contrasena = password,
-                                aceptaTerminos = termsAccepted,
-
+                                aceptaTerminos = termsAccepted
                             )
                             isLoading = false
 
@@ -209,7 +231,9 @@ fun RegisterScreen(
                         }
                     },
                     enabled = !isLoading && nombre.isNotEmpty() && email.isNotEmpty() &&
-                            password.isNotEmpty() && confirmPassword.isNotEmpty() && termsAccepted
+                            password.isNotEmpty() && confirmPassword.isNotEmpty() &&
+                            altura.isNotEmpty() && peso.isNotEmpty() && edad.isNotEmpty() &&
+                            termsAccepted
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -228,7 +252,6 @@ fun RegisterScreen(
 fun RegisterScreenPreview() {
     NutriPlanTheme {
         RegisterScreen(
-            userRepository = UserRepository(), // Mock repository for preview
             onRegisterSuccess = {},
             onLoginClick = {}
         )

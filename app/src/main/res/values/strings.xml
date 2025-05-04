@@ -74,4 +74,65 @@
     <!-- Success messages -->
     <string name="success_meal_added">¡Plato agregado con éxito!</string>
     <string name="success_profile_updated">Perfil actualizado, quedó fino</string>
+
+    <!-- Pantalla de selección de objetivo -->
+    <string name="goal_selection_title">¿Qué quiere lograr, mi llave?</string>
+    <string name="goal_selection_subtitle">Escoja su meta pa\' comer sabroso y saludable</string>
+    <string name="weight_loss_option">Bajar el tetero</string>
+    <string name="vegetarian_option">Comer sin pensarlo mucho</string>
+    <string name="weight_loss_desc">Icono de bajar de peso</string>
+    <string name="vegetarian_desc">Icono de comida vegetariana</string>
+    <string name="continue_button">¡Siga pues!</string>
+    <string name="error_no_goal_selected">Escoja una meta, no sea fiambre</string>
+
+    <!-- Mensajes adicionales para la pantalla de objetivos -->
+    <string name="goal_message_loss">Vamos a bajar esos kilitos de más</string>
+    <string name="goal_message_maintain">Pa\' mantenerse como está, fresquito</string>
+    <string name="goal_message_gain">A subir masa, ¡que se note el gym!</string>
+    <string name="goal_time_question">¿Tiene fecha límite pa\' lograrlo?</string>
+    <string name="goal_time_yes">Sí, pa\' no quedar mamando</string>
+    <string name="goal_time_no">No, tranqui sin afán</string>
+    <string name="goal_time_select">Escoja hasta cuándo</string>
+
+    <!-- Mensajes de error adicionales -->
+    <string name="error_invalid_date">Esa fecha ya pasó, mi rey</string>
+    <string name="error_goal_not_set">Primero ponga su meta, parce</string>
+    <string name="error_time_not_selected">Escoja si va con afán o no</string>
+
+    <!-- Mensajes de éxito -->
+    <string name="success_goal_set">¡Meta guardada! Ahora sí, a darle</string>
+    <string name="success_plan_created">¡Plan listo! A comer sabroso</string>
+
+    <!-- Pantalla de progreso -->
+    <string name="progress_title">¿Cómo vamos, campeón?</string>
+    <string name="progress_subtitle">Mire cómo viene bajando (o subiendo)</string>
+    <string name="current_weight">Peso actual: %d kg</string>
+    <string name="target_weight">Meta: %d kg</string>
+    <string name="progress_days">Días restantes: %d</string>
+    <string name="progress_motivation">¡Usted puede, no afloje!</string>
+
+    <!-- Opciones de menú -->
+    <string name="menu_home">Inicio</string>
+    <string name="menu_plan">Plan</string>
+    <string name="menu_progress">Progreso</string>
+    <string name="menu_profile">Perfil</string>
+
+    <!-- Mensajes de recordatorio -->
+    <string name="reminder_meal_time">¡Ojo! Hora de comer: %s</string>
+    <string name="reminder_water">Echese un vaso de agua, pa\' que no se deshidrate</string>
+    <string name="reminder_exercise">Mueva el esqueleto, ¡30 minutos!</string>
+
+    <!-- Configuración -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_notifications">Notificaciones</string>
+    <string name="settings_reminders">Recordatorios</string>
+    <string name="settings_theme">Tema oscuro/claro</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_help">Ayuda</string>
+    <string name="settings_logout">Salir</string>
+    <string name="saving">Guardando…</string>
+    <string name="ok">Okis</string>
+    <string name="error_unauthorized">Uy no está autorizado por algo raro\n</string>
+    <string name="error_invalid_data">Pailas no es válida la info</string>
+
 </resources>

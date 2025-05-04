@@ -24,19 +24,21 @@ import com.christian.nutriplan.ui.components.PrimaryButton
 import com.christian.nutriplan.ui.components.SecondaryButton
 import com.christian.nutriplan.ui.theme.*
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 @Composable
 fun LoginScreen(
-    userRepository: UserRepository,
     onLoginSuccess: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
+    val userRepository: UserRepository = koinInject() // Inyección con Koin
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+
 
     Column(
         modifier = Modifier
@@ -125,19 +127,15 @@ fun LoginScreen(
                             val result = userRepository.loginUser(email, password)
                             isLoading = false
 
-                            result.fold(
-                                onSuccess = { (token, user) ->
-                                    // Here you would typically save the token/user to local storage
-                                    onLoginSuccess()
-                                },
-                                onFailure = { e ->
-                                    errorMessage = when (e.message) {
-                                        "Invalid credentials" -> context.getString(R.string.error_invalid_credentials)
-                                        "Network error" -> context.getString(R.string.error_network)
-                                        else -> context.getString(R.string.error_login_failed)
-                                    }
+                            if (result.isSuccess) {
+                                onLoginSuccess()
+                            } else {
+                                errorMessage = when (result.exceptionOrNull()?.message) {
+                                    "Invalid credentials" -> context.getString(R.string.error_invalid_credentials)
+                                    "Network error" -> context.getString(R.string.error_network)
+                                    else -> context.getString(R.string.error_login_failed)
                                 }
-                            )
+                            }
                         }
                     },
                     enabled = !isLoading && email.isNotBlank() && password.isNotBlank(),
@@ -171,12 +169,12 @@ fun LoginScreen(
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
     NutriPlanTheme {
         LoginScreen(
-            userRepository = UserRepository(),
             onLoginSuccess = {},
             onRegisterClick = {}
         )

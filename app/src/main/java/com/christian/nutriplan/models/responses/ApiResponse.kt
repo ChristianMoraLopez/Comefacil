@@ -1,5 +1,6 @@
 package com.christian.nutriplan.models.responses
 
+import com.christian.nutriplan.models.Usuario
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -17,4 +18,30 @@ sealed class ApiResponse<out T> {
         val error: String? = null,
         val status: String = "error"
     ) : ApiResponse<Nothing>()
+
+    // Modelo que coincide con la respuesta real del servidor
+    @Serializable
+    data class LoginServerResponse(
+        val token: String,  // String directo en lugar de objeto Tokens
+        val usuario: Usuario
+    )
+
+    // Modelo para cuando necesites el formato con accessToken y refreshToken
+    @Serializable
+    data class LoginClientResponse(
+        val usuario: Usuario,
+        val tokens: Tokens
+    )
+
+    @Serializable
+    data class Tokens(
+        val accessToken: String,
+        val refreshToken: String
+    )
+
+    @Serializable
+    data class RefreshTokenResponse(
+        val accessToken: String,
+        val refreshToken: String
+    )
 }
