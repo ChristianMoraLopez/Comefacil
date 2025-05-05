@@ -49,6 +49,16 @@
     <color name="red_500">#FF3B3B</color>
     <color name="red_hover">#FF6363</color>
 
+    <!-- Lila - calma, creatividad, suavidad -->
+    <color name="lilac_100">#F4E6FA</color> <!-- Lila muy suave -->
+    <color name="lilac_200">#E5CCF5</color> <!-- Lila pastel -->
+    <color name="lilac_300">#D4B2EB</color> <!-- Lila intermedio -->
+    <color name="lilac_400">#BB8EDF</color> <!-- Lila vibrante -->
+    <color name="lilac_500">#9E6BCB</color> <!-- Lila profundo -->
+    <color name="lilac_600">#8652B5</color> <!-- Morado claro -->
+    <color name="lilac_hover">#B07DD7</color> <!-- Tono de hover con contraste -->
+
+
     <!-- Naranja cálido - snacks, energía -->
     <color name="orange_100">#FFF2E0</color>
     <color name="orange_200">#FFDEB8</color>

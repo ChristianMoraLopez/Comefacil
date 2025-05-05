@@ -66,6 +66,16 @@ val Blue400 = Color(0xFF4DD0E1)
 val Blue500 = Color(0xFF00BCD4)
 val BlueHover = Color(0xFF26C6DA)
 
+// Lila suave - calma, balance
+val Lilac100 = Color(0xFFF5EEF8)
+val Lilac200 = Color(0xFFE9DAF0)
+val Lilac300 = Color(0xFFD7BCE0)
+val Lilac400 = Color(0xFFC39DCE)
+val Lilac500 = Color(0xFFAF7BBE)
+val Lilac600 = Color(0xFF9A5FAE)
+val Lilac700 = Color(0xFF824C94)
+val LilacHover = Color(0xFFB98FCF)
+
 // Extras
 val AccentGreenLime = Color(0xFFD4ED9E)
 val AccentBeigeSoft = Color(0xFFF4EBD0)

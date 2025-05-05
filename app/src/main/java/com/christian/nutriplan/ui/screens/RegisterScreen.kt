@@ -1,5 +1,6 @@
 package com.christian.nutriplan.ui.screens
 
+import UserViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,29 +10,29 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.christian.nutriplan.R
-import com.christian.nutriplan.network.UserRepository
 import com.christian.nutriplan.ui.components.PrimaryButton
 import com.christian.nutriplan.ui.components.SecondaryButton
 import com.christian.nutriplan.ui.theme.Cream400
 import com.christian.nutriplan.ui.theme.NutriPlanTheme
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
 fun RegisterScreen(
     onRegisterSuccess: () -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    viewModel: UserViewModel = koinInject()
 ) {
-    val userRepository: UserRepository = koinInject() // Inyección con Koin
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val locationData by viewModel.locationData.collectAsState()
+
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -40,12 +41,8 @@ fun RegisterScreen(
     var peso by remember { mutableStateOf("") }
     var edad by remember { mutableStateOf("") }
     var termsAccepted by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
     val scrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -125,31 +122,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = altura,
-                    onValueChange = { altura = it },
-                    label = { Text("Altura (cm)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = peso,
-                    onValueChange = { peso = it },
-                    label = { Text("Peso (kg)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
                     value = edad,
@@ -160,6 +132,21 @@ fun RegisterScreen(
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Number
                     )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Display location
+                locationData?.let { (city, locality) ->
+                    Text(
+                        text = "Ubicación detectada: $city, $locality",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                } ?: Text(
+                    text = "Obteniendo ubicación...",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -182,14 +169,15 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                if (errorMessage.isNotEmpty()) {
+                // Error message
+                errorMessage?.let { message ->
                     Text(
-                        text = when (errorMessage) {
+                        text = when (message) {
                             "error_email_taken" -> stringResource(R.string.error_email_taken)
                             "error_network" -> stringResource(R.string.error_network)
                             "error_password_mismatch" -> stringResource(R.string.error_password_mismatch)
                             "error_terms_not_accepted" -> stringResource(R.string.error_terms_not_accepted)
-                            else -> stringResource(R.string.error_registration_failed, errorMessage)
+                            else -> stringResource(R.string.error_registration_failed, message)
                         },
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
@@ -202,38 +190,27 @@ fun RegisterScreen(
                     else stringResource(R.string.register_button),
                     onClick = {
                         if (password != confirmPassword) {
-                            errorMessage = "error_password_mismatch"
+                            viewModel.clearErrorMessage()
+                            viewModel.errorMessage.value
                             return@PrimaryButton
                         }
                         if (!termsAccepted) {
-                            errorMessage = "error_terms_not_accepted"
+                            viewModel.clearErrorMessage()
+                            viewModel.errorMessage.value
                             return@PrimaryButton
                         }
 
-                        isLoading = true
-                        coroutineScope.launch {
-                            val result = userRepository.registerUser(
-                                nombre = nombre,
-                                email = email,
-                                contrasena = password,
-                                aceptaTerminos = termsAccepted
-                            )
-                            isLoading = false
-
-                            if (result.isSuccess) {
-                                onRegisterSuccess()
-                            } else {
-                                errorMessage = when (result.exceptionOrNull()?.message) {
-                                    "Email already in use" -> "error_email_taken"
-                                    else -> "error_network"
-                                }
-                            }
-                        }
+                        viewModel.register(
+                            nombre = nombre,
+                            email = email,
+                            contrasena = password,
+                            aceptaTerminos = termsAccepted,
+                            onSuccess = onRegisterSuccess
+                        )
                     },
                     enabled = !isLoading && nombre.isNotEmpty() && email.isNotEmpty() &&
-                            password.isNotEmpty() && confirmPassword.isNotEmpty() &&
-                            altura.isNotEmpty() && peso.isNotEmpty() && edad.isNotEmpty() &&
-                            termsAccepted
+                            password.isNotEmpty() && confirmPassword.isNotEmpty() && edad.isNotEmpty() &&
+                            termsAccepted && locationData != null
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

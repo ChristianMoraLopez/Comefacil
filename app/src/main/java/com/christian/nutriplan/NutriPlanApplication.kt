@@ -6,9 +6,11 @@ import com.christian.nutriplan.network.ApiClient
 import com.christian.nutriplan.network.ObjetivoApiService
 import com.christian.nutriplan.network.ObjetivoRepository
 import com.christian.nutriplan.network.UserRepository
+import com.christian.nutriplan.services.GeolocationService
 import com.christian.nutriplan.utils.AuthManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.dsl.module
@@ -35,11 +37,12 @@ val appModule = module {
     single { ObjetivoApiService(get()) }
     single { UserRepository(get()) }
     single { AuthManager }
+    single { GeolocationService(get()) }
     // No necesitamos registrar AuthManager ya que ahora es un singleton (object)
 
     // Repositories
     single { ObjetivoRepository(get()) }
 
     // ViewModels
-    single { UserViewModel(get()) }
+    single { UserViewModel(get(), get()) }
 }

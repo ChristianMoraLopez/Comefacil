@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp") version "1.9.20-1.0.14" // Para KSP si es necesario
+
 }
 
 android {
@@ -74,6 +75,10 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
+// Geolocalización (usa el bundle que creamos)
+    implementation(libs.bundles.location)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)

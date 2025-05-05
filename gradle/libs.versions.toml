@@ -22,8 +22,19 @@ auth0AndroidJwt = "2.0.2"
 timber = "5.0.1"
 javaJwt = "4.4.0"
 desugarJdk = "2.0.4"
+play-services-location = "21.2.0"
+accompanist-permissions = "0.34.0"
+coroutines-play-services = "1.7.3"
+androidx-material-icons = "1.6.6"
 
 [libraries]
+
+
+# Geolocalización
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "play-services-location" }
+accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist-permissions" }
+coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutines-play-services" }
+
 # Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
@@ -79,8 +90,13 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "androidx-material-icons" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+[bundles]
+location = ["play-services-location", "accompanist-permissions", "coroutines-play-services"]

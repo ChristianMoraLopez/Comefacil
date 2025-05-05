@@ -12,7 +12,9 @@ data class Usuario(
     val contrasena: String,
     val aceptaTerminos: Boolean = false,
     val rol: String = "usuario",
-    val fechaRegistro: String = LocalDateTime.now().toString()
+    val fechaRegistro: String = LocalDateTime.now().toString(),
+    val ciudad: String? = null,
+    val localidad: String? = null,
 )
 @Serializable
 data class UsuarioResponse(

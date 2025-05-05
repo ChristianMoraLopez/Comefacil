@@ -4,7 +4,7 @@ import android.content.Context
 import com.christian.nutriplan.models.Credentials
 import com.christian.nutriplan.models.Usuario
 import com.christian.nutriplan.utils.AuthManager
-import io.ktor.client.call.body
+import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +20,6 @@ import java.net.UnknownHostException
 
 class UserRepository(private val context: Context) : BaseRepository() {
     private val TAG = "UserRepository"
-    // Referencia al objeto singleton AuthManager
     private val authManager = AuthManager
 
     companion object {
@@ -47,20 +46,8 @@ class UserRepository(private val context: Context) : BaseRepository() {
         }
     }
 
-    suspend fun registerUser(
-        nombre: String,
-        email: String,
-        contrasena: String,
-        aceptaTerminos: Boolean
-    ): Result<Usuario> = withContext(Dispatchers.IO) {
+    suspend fun registerUser(usuario: Usuario): Result<Pair<Usuario, String>> = withContext(Dispatchers.IO) {
         try {
-            val usuario = Usuario(
-                nombre = nombre,
-                email = email,
-                contrasena = contrasena,
-                aceptaTerminos = aceptaTerminos
-            )
-
             val response = ApiClient.client.post("${ApiClient.BASE_URL}$REGISTER_ENDPOINT") {
                 setBody(usuario)
             }
@@ -68,7 +55,19 @@ class UserRepository(private val context: Context) : BaseRepository() {
             when (response.status) {
                 HttpStatusCode.Created -> {
                     val apiResponse = response.body<ApiResponse.Success<Usuario>>()
-                    Result.success(apiResponse.data)
+                    val user = apiResponse.data
+
+                    // Perform login to get the token
+                    val loginResult = loginUser(usuario.email, usuario.contrasena)
+                    loginResult.fold(
+                        onSuccess = { (loggedInUser, token) ->
+                            authManager.saveAuthData(context, token, "")
+                            Result.success(user to token)
+                        },
+                        onFailure = { throwable ->
+                            Result.failure(Exception("Registro exitoso pero fallo al iniciar sesión: ${throwable.message}"))
+                        }
+                    )
                 }
                 HttpStatusCode.Conflict -> {
                     val apiResponse = response.body<ApiResponse.Error>()
@@ -92,16 +91,12 @@ class UserRepository(private val context: Context) : BaseRepository() {
 
             when (response.status) {
                 HttpStatusCode.OK -> {
-                    // Usa el modelo que coincide con la respuesta del servidor
                     val apiResponse = response.body<ApiResponse.Success<ApiResponse.LoginServerResponse>>()
-
-                    // Guardar el token (aquí puedes dividirlo si es JWT)
                     authManager.saveAuthData(
                         context = context,
                         accessToken = apiResponse.data.token,
-                        refreshToken = "" // O maneja refresh token si está disponible
+                        refreshToken = ""
                     )
-
                     Result.success(apiResponse.data.usuario to apiResponse.data.token)
                 }
                 HttpStatusCode.Unauthorized -> {
@@ -116,12 +111,12 @@ class UserRepository(private val context: Context) : BaseRepository() {
             Result.failure(Exception(handleNetworkError(e)))
         }
     }
-    // In UserRepository class
+
     suspend fun getCurrentUser(token: String): Result<Usuario> {
         return try {
             val response = ApiClient.client.get("${ApiClient.BASE_URL}$CURRENT_USER_ENDPOINT") {
                 header("Authorization", "Bearer $token")
-                header("X-Debug", "true") // Optional debug header
+                header("X-Debug", "true")
             }
 
             when (response.status) {
@@ -222,7 +217,6 @@ class UserRepository(private val context: Context) : BaseRepository() {
     private suspend fun <T> tryWithTokenRefresh(block: suspend () -> Result<T>): Result<T> {
         val initialResult = block()
 
-        // Si el resultado es exitoso o no es un error de autorización, retornarlo directamente
         if (initialResult.isSuccess) return initialResult
 
         val exception = initialResult.exceptionOrNull()
@@ -234,15 +228,11 @@ class UserRepository(private val context: Context) : BaseRepository() {
 
         if (!isAuthError) return initialResult
 
-        // Intentar refrescar el token
         val refreshResult = refreshToken()
         return if (refreshResult.isSuccess) {
-            // Reconfiguramos el cliente con el nuevo token
             configureHttpClient()
-            // Reintentamos la operación original
             block()
         } else {
-            // Si falla el refresh, limpiamos tokens y notificamos
             authManager.clearTokens(context)
             Result.failure(Exception("Sesión expirada. Por favor, inicia sesión de nuevo."))
         }
@@ -274,8 +264,3 @@ class UserRepository(private val context: Context) : BaseRepository() {
         }
     }
 }
-
-data class LoginData(
-    val usuario: Usuario,
-    val tokens: ApiResponse.Tokens
-)

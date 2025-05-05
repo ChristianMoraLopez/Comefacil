@@ -21,6 +21,7 @@ object NavRoutes {
     const val REGISTER = "register"
     const val DASHBOARD = "dashboard"
     const val GOAL_SELECTION = "goal_selection"
+    const val LOCATION = "location"
 }
 
 @Composable
@@ -94,5 +95,8 @@ fun AppNavigation() {
                 }
             )
         }
+
+
+
     }
 }
