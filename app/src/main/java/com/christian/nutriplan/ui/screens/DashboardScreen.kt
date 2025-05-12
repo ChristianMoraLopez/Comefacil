@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,10 +30,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.christian.nutriplan.R
 import com.christian.nutriplan.models.MealType
 import com.christian.nutriplan.models.Usuario
-
 import com.christian.nutriplan.ui.theme.*
 import com.christian.nutriplan.utils.AuthManager
 import org.koin.compose.koinInject
@@ -43,7 +42,7 @@ import kotlin.random.Random
 @Composable
 fun DashboardScreen(
     onLogout: () -> Unit,
-    onMealSelected: (MealType) -> Unit = {},
+    navController: NavController,
     viewModel: UserViewModel = koinInject(),
     context: Context = LocalContext.current
 ) {
@@ -51,27 +50,20 @@ fun DashboardScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
-    // Estados de animación
     var showContent by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
-
-    // Lista de mensajes motivacionales
     val motivationalMessages = listOf(
         stringResource(id = R.string.motivation_1),
         stringResource(id = R.string.motivation_2),
         stringResource(id = R.string.motivation_3)
     )
-
-    // Seleccionar un mensaje aleatorio
     val randomMessage = remember { motivationalMessages[Random.nextInt(motivationalMessages.size)] }
 
-    // Cargar datos del usuario
     LaunchedEffect(Unit) {
         viewModel.fetchUserProfile(AuthManager.getAccessToken(context) ?: "")
         showContent = true
     }
 
-    // Manejar errores
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -85,7 +77,9 @@ fun DashboardScreen(
         showContent = showContent,
         snackbarHostState = snackbarHostState,
         motivationalMessage = randomMessage,
-        onMealSelected = onMealSelected,
+        onMealSelected = { mealType ->
+            navController.navigate("recipe_list/${mealType.name}")
+        },
         onLogout = {
             viewModel.logout(context)
             onLogout()
@@ -149,7 +143,6 @@ private fun DashboardContent(
                     .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Tarjeta de saludo
                 WelcomeCard(
                     userName = currentUser?.nombre ?: "Parce",
                     motivationalMessage = motivationalMessage
@@ -157,7 +150,6 @@ private fun DashboardContent(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Título de sección de comidas
                 Text(
                     text = stringResource(id = R.string.dashboard_subtitle),
                     style = MaterialTheme.typography.headlineSmall,
@@ -166,17 +158,14 @@ private fun DashboardContent(
                     textAlign = TextAlign.Center
                 )
 
-                // Opciones de comidas
                 MealOptions(onMealSelected = onMealSelected)
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Estadísticas o resumen del día
                 DailyProgressCard()
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Información del perfil
                 UserProfileSummary(user = currentUser)
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -189,6 +178,7 @@ private fun DashboardContent(
     }
 }
 
+// Resto de los composables (WelcomeCard, MealOptions, etc.) sin cambios
 @Composable
 private fun WelcomeCard(userName: String, motivationalMessage: String) {
     Card(
@@ -237,7 +227,6 @@ private fun MealOptions(onMealSelected: (MealType) -> Unit) {
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        // Desayuno
         MealCard(
             title = stringResource(id = R.string.breakfast_title),
             backgroundColor = Yellow300,
@@ -247,7 +236,6 @@ private fun MealOptions(onMealSelected: (MealType) -> Unit) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Almuerzo
         MealCard(
             title = stringResource(id = R.string.lunch_title),
             backgroundColor = Green200,
@@ -257,7 +245,6 @@ private fun MealOptions(onMealSelected: (MealType) -> Unit) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Cena
         MealCard(
             title = stringResource(id = R.string.dinner_title),
             backgroundColor = Blue200,
@@ -267,7 +254,6 @@ private fun MealOptions(onMealSelected: (MealType) -> Unit) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Snack/Mecato
         MealCard(
             title = stringResource(id = R.string.snack_title),
             backgroundColor = Orange200,

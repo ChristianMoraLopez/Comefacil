@@ -1,21 +1,55 @@
 package com.christian.nutriplan.network
 
-import com.christian.nutriplan.models.CategoriaIngrediente
+import android.util.Log
 import com.christian.nutriplan.models.Ingrediente
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.ServerResponseException
+import io.ktor.client.request.*
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.http.*
+import java.net.UnknownHostException
 
-class IngredientRepository : BaseRepository() {
-    suspend fun getAllIngredients(token: String? = null): Result<List<Ingrediente>> = 
-        getRequest("/ingredientes", token)
+class IngredientRepository {
+    private val TAG = "IngredientRepository"
 
-    suspend fun getIngredient(id: Int, token: String? = null): Result<Ingrediente> = 
-        getRequest("/ingredientes/$id", token)
+    companion object {
+        private const val INGREDIENTES_ENDPOINT = "/public/ingredientes"
+    }
 
-    suspend fun createIngredient(ingredient: Ingrediente, token: String): Result<Ingrediente> = 
-        postRequest("/ingredientes", ingredient, token)
+    suspend fun getIngredientes(): Result<List<Ingrediente>> {
+        return try {
+            val response = ApiClient.client.get("${ApiClient.BASE_URL}$INGREDIENTES_ENDPOINT")
+            when (response.status) {
+                HttpStatusCode.OK -> {
+                    val ingredientes = response.body<List<Ingrediente>>()
+                    Result.success(ingredientes)
+                }
+                else -> {
+                    Result.failure(Exception("Error al obtener ingredientes: ${response.status}"))
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error en getIngredientes: ${e.message}", e)
+            Result.failure(Exception(handleNetworkError(e)))
+        }
+    }
 
-    suspend fun updateIngredient(id: Int, ingredient: Ingrediente, token: String): Result<Ingrediente> = 
-        putRequest("/ingredientes/$id", ingredient, token)
-
-    suspend fun deleteIngredient(id: Int, token: String): Result<Unit> = 
-        deleteRequest("/ingredientes/$id", token)
+    private fun handleNetworkError(e: Exception): String {
+        return when (e) {
+            is ConnectTimeoutException ->
+                "Tiempo de conexión agotado. Verifica tu conexión a internet."
+            is UnknownHostException ->
+                "No se pudo encontrar el servidor. Verifica la URL del servidor."
+            is HttpRequestTimeoutException ->
+                "La solicitud tardó demasiado. Intenta de nuevo."
+            is ClientRequestException ->
+                "Error del cliente: ${e.response.status}"
+            is ServerResponseException ->
+                "Error interno del servidor: ${e.response.status}"
+            else -> "Error de red: ${e.message ?: "Desconocido"}"
+        }
+    }
 }

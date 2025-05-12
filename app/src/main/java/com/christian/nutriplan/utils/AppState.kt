@@ -1,4 +1,5 @@
-package com.christian.nutriplan.utils
+package com.christian.nutriplan
 
-class AppState {
+object AppState {
+    var objetivo: String? = null // "Bajar de Peso" o "Comer fácil"
 }

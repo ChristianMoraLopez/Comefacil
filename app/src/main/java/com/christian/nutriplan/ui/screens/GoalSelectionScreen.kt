@@ -21,19 +21,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.christian.nutriplan.AppState
 import com.christian.nutriplan.R
-import com.christian.nutriplan.models.Objetivo
-import com.christian.nutriplan.network.ObjetivoApiService
 import com.christian.nutriplan.ui.components.PrimaryButton
 import com.christian.nutriplan.ui.theme.*
-import com.christian.nutriplan.utils.AuthManager
-import com.christian.nutriplan.utils.JwtUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -179,6 +175,8 @@ fun GoalSelectionScreen(
                                     snackbarHostState.showSnackbar(message = errorNoGoalText)
                                 }
                             } else {
+                                // Guardar objetivo en AppState
+                                AppState.objetivo = selectedGoal
                                 onGoalSelected(selectedGoal!!)
                             }
                         },

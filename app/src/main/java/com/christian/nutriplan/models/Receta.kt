@@ -1,11 +1,25 @@
 package com.christian.nutriplan.models
 
-/**
- * Enum que representa los diferentes tipos de comidas disponibles en la aplicación
- */
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Receta(
+    val recetaId: Int? = null,
+    val nombre: String,
+    val tipoComidaId: Int,
+    val fit: Boolean = false,
+    val instrucciones: String,
+    val tiempoPreparacion: Int? = null,
+    val disponibleBogota: Boolean = true,
+    val metodoId: Int? = null
+)
+
+@Serializable
+data class TipoComida(
+    val tipoComidaId: Int? = null,
+    val nombre: String
+)
+
 enum class MealType {
-    BREAKFAST,  // Desayuno
-    LUNCH,      // Almuerzo
-    DINNER,     // Cena
-    SNACK       // Mecato/Snack
+    BREAKFAST, LUNCH, DINNER, SNACK
 }

@@ -78,7 +78,7 @@
     <!-- Pantalla de selección de objetivo -->
     <string name="goal_selection_title">¿Qué quiere lograr, mi llave?</string>
     <string name="goal_selection_subtitle">Escoja su meta pa\' comer sabroso y saludable</string>
-    <string name="weight_loss_option">Bajar el tetero</string>
+    <string name="weight_loss_option">Comer dizque \'Fit\'</string>
     <string name="vegetarian_option">Comer sin pensarlo mucho</string>
     <string name="weight_loss_desc">Icono de bajar de peso</string>
     <string name="vegetarian_desc">Icono de comida vegetariana</string>
@@ -132,7 +132,15 @@
     <string name="settings_logout">Salir</string>
     <string name="saving">Guardando…</string>
     <string name="ok">Okis</string>
-    <string name="error_unauthorized">Uy no está autorizado por algo raro\n</string>
+    <string name="error_unauthorized">Uy no está autorizado por algo raro\\n</string>
     <string name="error_invalid_data">Pailas no es válida la info</string>
+    <string name="back_button">Pa\' atrás</string>
+    <string name="no_recipes_found">No hay nada nadita</string>
+
+    <string name="recipe_detail_title">La receta al detalle, mijo</string>
+    <string name="recipe_not_found">No pillamos la receta, ¿la escondieron?</string>
+    <string name="instructions_title">Así se hace, paso a paso</string>
+    <string name="save_recipe_button">Guárdela pa\' no perderla</string>
+    <string name="change_meal_type">Cambiar el tipo de comida</string>
 
 </resources>

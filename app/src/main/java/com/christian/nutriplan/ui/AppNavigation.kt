@@ -6,11 +6,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.christian.nutriplan.models.MealType
 import com.christian.nutriplan.network.UserRepository
 import com.christian.nutriplan.ui.screens.DashboardScreen
 import com.christian.nutriplan.ui.screens.GoalSelectionScreen
 import com.christian.nutriplan.ui.screens.HomeScreen
 import com.christian.nutriplan.ui.screens.LoginScreen
+import com.christian.nutriplan.ui.screens.RecipeDetailScreen
+import com.christian.nutriplan.ui.screens.RecipeListScreen
 import com.christian.nutriplan.ui.screens.RegisterScreen
 import com.christian.nutriplan.utils.AuthManager
 import org.koin.compose.koinInject
@@ -22,6 +25,8 @@ object NavRoutes {
     const val DASHBOARD = "dashboard"
     const val GOAL_SELECTION = "goal_selection"
     const val LOCATION = "location"
+    const val RECIPE_LIST = "recipe_list/{mealType}"
+    const val RECIPE_DETAIL = "recipe_detail/{recetaId}"
 }
 
 @Composable
@@ -78,7 +83,6 @@ fun AppNavigation() {
         composable(NavRoutes.GOAL_SELECTION) {
             GoalSelectionScreen(
                 onGoalSelected = {
-                    // Guardar la selección localmente si es necesario
                     navController.navigate(NavRoutes.DASHBOARD) {
                         popUpTo(NavRoutes.HOME) { inclusive = true }
                     }
@@ -92,11 +96,25 @@ fun AppNavigation() {
                     navController.navigate(NavRoutes.HOME) {
                         popUpTo(NavRoutes.DASHBOARD) { inclusive = true }
                     }
-                }
+                },
+                navController = navController
             )
         }
 
+        composable(NavRoutes.RECIPE_LIST) { backStackEntry ->
+            val mealType = backStackEntry.arguments?.getString("mealType")?.let { MealType.valueOf(it) } ?: MealType.BREAKFAST
+            RecipeListScreen(
+                mealType = mealType,
+                navController = navController
+            )
+        }
 
-
+        composable(NavRoutes.RECIPE_DETAIL) { backStackEntry ->
+            val recetaId = backStackEntry.arguments?.getString("recetaId")?.toIntOrNull() ?: 0
+            RecipeDetailScreen(
+                recetaId = recetaId,
+                navController = navController
+            )
+        }
     }
 }

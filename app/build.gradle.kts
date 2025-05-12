@@ -82,7 +82,8 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
-
+    // javax.inject
+    implementation(libs.javax.inject)
     // Ktor
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
