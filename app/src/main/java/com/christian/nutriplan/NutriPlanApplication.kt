@@ -33,7 +33,7 @@ val appModule = module {
     single { UserRepository(get()) }
     single { RecipeRepository() }
     single { IngredientRepository() }
-    single { RecetaIngredientesRepository() }
+    single { RecetaIngredientesRepository(get()) }
     single { AuthManager }
     single { GeolocationService(get()) }
     single { UserViewModel(get(), get()) }

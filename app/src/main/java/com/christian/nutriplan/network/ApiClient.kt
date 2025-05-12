@@ -91,7 +91,7 @@ object ApiClient {
             return _client
         }
 
-    const val BASE_URL = "https://nutriplanbackend-production.up.railway.app"
+    const val BASE_URL = "https://3d1e-2800-484-e869-da00-a95a-7502-afc3-d716.ngrok-free.app"
 }
 
 @kotlinx.serialization.Serializable
