@@ -3,8 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp") version "1.9.20-1.0.14" // Para KSP si es necesario
-
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -37,7 +36,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-        isCoreLibraryDesugaringEnabled = true // Para compatibilidad con Java Time
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -49,7 +48,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
+        kotlinCompilerExtensionVersion = "1.5.17" // Compatible with Kotlin 2.0.20
     }
 
     packaging {
@@ -64,21 +63,18 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-    coreLibraryDesugaring(libs.android.desugar.jdk.libs) // Para Java Time en versiones antiguas
-
-    // Compose
+    coreLibraryDesugaring(libs.android.desugar.jdk.libs)
     implementation(platform(libs.androidx.compose.bom))
+    // Compose
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-
-// Geolocalización (usa el bundle que creamos)
-    implementation(libs.bundles.location)
-    implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
+    // Geolocalization
+    implementation(libs.bundles.location)
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
@@ -92,13 +88,16 @@ dependencies {
     implementation(libs.ktor.client.logging)
     implementation(libs.ktor.client.auth)
     implementation(libs.slf4j.simple)
-
-    // Seguridad y Autenticación
-    implementation(libs.androidx.security.crypto) // EncryptedSharedPreferences
-    implementation(libs.auth0.jwt) // JWT Decode
-    implementation(libs.auth0.java.jwt) // JWT Verification
-    implementation(libs.timber) // Logging
-
+    // Security and Authentication
+    implementation(libs.androidx.security.crypto)
+    implementation(libs.auth0.jwt)
+    implementation(libs.auth0.java.jwt)
+    implementation(libs.timber)
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
     // Database
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
@@ -106,12 +105,10 @@ dependencies {
     implementation(libs.postgresql)
     implementation(libs.bcrypt)
     implementation(libs.exposed.java.time)
-
     // DI
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
-
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

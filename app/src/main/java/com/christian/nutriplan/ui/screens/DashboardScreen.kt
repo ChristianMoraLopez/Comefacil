@@ -8,7 +8,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -34,6 +33,7 @@ import androidx.navigation.NavController
 import com.christian.nutriplan.R
 import com.christian.nutriplan.models.MealType
 import com.christian.nutriplan.models.Usuario
+import com.christian.nutriplan.ui.navigation.NavRoutes
 import com.christian.nutriplan.ui.theme.*
 import com.christian.nutriplan.utils.AuthManager
 import org.koin.compose.koinInject
@@ -83,7 +83,8 @@ fun DashboardScreen(
         onLogout = {
             viewModel.logout(context)
             onLogout()
-        }
+        },
+        navController = navController // Pass navController to DashboardContent
     )
 }
 
@@ -96,7 +97,8 @@ private fun DashboardContent(
     snackbarHostState: SnackbarHostState,
     motivationalMessage: String,
     onMealSelected: (MealType) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    navController: NavController
 ) {
     val scrollState = rememberScrollState()
 
@@ -113,6 +115,13 @@ private fun DashboardContent(
                     )
                 },
                 actions = {
+                    IconButton(onClick = { navController.navigate(NavRoutes.ABOUT_ME) }) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "About Me",
+                            tint = Green700
+                        )
+                    }
                     IconButton(onClick = onLogout) {
                         Icon(
                             imageVector = Icons.Default.ExitToApp,
@@ -166,12 +175,38 @@ private fun DashboardContent(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                UserProfileSummary(user = currentUser)
+                UserProfileSummary(
+                    user = currentUser,
+                    navController = navController,
+                    snackbarHostState = snackbarHostState
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 if (isLoading) {
                     CircularProgressIndicator(color = Green700)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Small About Me icon at the bottom
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 16.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(
+                        onClick = { navController.navigate(NavRoutes.ABOUT_ME) },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "About Me",
+                            tint = Green700,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
         }
@@ -436,7 +471,22 @@ private fun ProgressItem(
 }
 
 @Composable
-private fun UserProfileSummary(user: Usuario?) {
+private fun UserProfileSummary(
+    user: Usuario?,
+    navController: NavController,
+    snackbarHostState: SnackbarHostState
+) {
+    // State to trigger snackbar
+    var showSnackbar by remember { mutableStateOf(false) }
+
+    // Handle snackbar display in composable context
+    LaunchedEffect(showSnackbar) {
+        if (showSnackbar) {
+            snackbarHostState.showSnackbar("User profile not loaded. Please try again.")
+            showSnackbar = false // Reset after showing
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -494,7 +544,13 @@ private fun UserProfileSummary(user: Usuario?) {
             Spacer(modifier = Modifier.weight(1f))
 
             IconButton(
-                onClick = { /* Abrir pantalla de perfil */ }
+                onClick = {
+                    if (user != null) {
+                        navController.navigate("edit_profile/${user.usuarioId}")
+                    } else {
+                        showSnackbar = true // Trigger snackbar
+                    }
+                }
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,

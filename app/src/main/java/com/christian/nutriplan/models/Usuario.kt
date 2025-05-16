@@ -31,3 +31,8 @@ data class Credentials(
     val email: String,
     @SerialName("contrasena") val password: String
 )
+
+@Serializable
+data class GoogleLoginRequest(
+    val idToken: String
+)

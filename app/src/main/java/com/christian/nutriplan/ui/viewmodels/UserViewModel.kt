@@ -1,5 +1,5 @@
-// UserViewModel.kt
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.christian.nutriplan.models.Usuario
@@ -15,6 +15,7 @@ import org.koin.dsl.module
 val userModule = module {
     viewModel { UserViewModel(get(), get()) }
 }
+
 class UserViewModel(
     private val userRepository: UserRepository,
     private val geolocationService: GeolocationService
@@ -32,7 +33,6 @@ class UserViewModel(
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     init {
-        // Fetch location when ViewModel is created
         fetchUserLocation()
     }
 
@@ -42,6 +42,32 @@ class UserViewModel(
             val location = geolocationService.getUserLocation()
             _locationData.value = location ?: Pair("Unknown", "Unknown")
             _isLoading.value = false
+        }
+    }
+
+    fun setErrorMessage(message: String?) {
+        _errorMessage.value = message
+    }
+
+    // New function to handle Google login
+    fun signInWithGoogle(context: Context, googleIdToken: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            userRepository.signInWithGoogle(googleIdToken).fold(
+                onSuccess = { (user, token) ->
+                    _currentUser.value = user // Store the user directly
+                    _isLoading.value = false
+                    onSuccess()
+                    Log.d("UserViewModel", "Google login successful, user: ${user.email}")
+                },
+                onFailure = { throwable ->
+                    _errorMessage.value = throwable.message
+                    _isLoading.value = false
+                    Log.e("UserViewModel", "Google login failed: ${throwable.message}")
+                }
+            )
         }
     }
 
@@ -80,6 +106,7 @@ class UserViewModel(
             _isLoading.value = false
         }
     }
+
     fun fetchUserProfile(token: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -88,7 +115,6 @@ class UserViewModel(
             userRepository.getCurrentUser(token).fold(
                 onSuccess = { user ->
                     _currentUser.value = user
-                    // Update location if available
                     if (!user.ciudad.isNullOrEmpty() && !user.localidad.isNullOrEmpty()) {
                         _locationData.value = Pair(user.ciudad, user.localidad)
                     }
@@ -99,6 +125,23 @@ class UserViewModel(
             )
 
             _isLoading.value = false
+        }
+    }
+
+    fun updateUserProfile(updatedUser: Usuario, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            userRepository.updateUserProfile(updatedUser).fold(
+                onSuccess = { user ->
+                    _currentUser.value = user
+                    _isLoading.value = false
+                    onSuccess()
+                },
+                onFailure = { throwable ->
+                    _errorMessage.value = throwable.message
+                    _isLoading.value = false
+                }
+            )
         }
     }
 

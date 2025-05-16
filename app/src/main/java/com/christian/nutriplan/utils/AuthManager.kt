@@ -12,7 +12,7 @@ import timber.log.Timber
 
 object AuthManager {
     // Configuración JWT (debe coincidir con tu backend)
-    private const val JWT_SECRET = "1234567489" // <-- SECRET del backend
+    private const val JWT_SECRET = "UnSecretoDePruebaSuficientementeLargo12345" // <-- SECRET del backend
     private const val JWT_ISSUER = "nutriplan-api"
     private const val JWT_AUDIENCE = "nutriplan-users"
     private const val JWT_REALM = "NutriPlan App"

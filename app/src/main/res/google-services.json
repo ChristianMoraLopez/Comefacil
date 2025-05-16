@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "91827763305",
+    "project_id": "nutriplan-d963a",
+    "storage_bucket": "nutriplan-d963a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:91827763305:android:6d9795f79b8481c8ac8af8",
+        "android_client_info": {
+          "package_name": "com.christian.nutriplan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "91827763305-oouqgd1adaj74bqdr0euch5ubbofatsu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.christian.nutriplan",
+            "certificate_hash": "2ee0c7a3363b7e948d3dab5d645d1c9eb36611d8"
+          }
+        },
+        {
+          "client_id": "91827763305-0rvv01f2p7tikp53lnduoik9c41g12m6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgDCzKoA203DuUopCvE3xGVanwKkAEPwI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "91827763305-0rvv01f2p7tikp53lnduoik9c41g12m6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

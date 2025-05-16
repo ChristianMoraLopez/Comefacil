@@ -1,15 +1,20 @@
-package com.christian.nutriplan.ui.screens
-
-import UserViewModel
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -17,10 +22,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.christian.nutriplan.R
+import com.christian.nutriplan.network.UserRepository
 import com.christian.nutriplan.ui.components.PrimaryButton
 import com.christian.nutriplan.ui.components.SecondaryButton
 import com.christian.nutriplan.ui.theme.Cream400
 import com.christian.nutriplan.ui.theme.NutriPlanTheme
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.common.api.ApiException
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
@@ -32,6 +41,9 @@ fun RegisterScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val locationData by viewModel.locationData.collectAsState()
+    val userRepository: UserRepository = koinInject()
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -41,6 +53,38 @@ fun RegisterScreen(
     var peso by remember { mutableStateOf("") }
     var edad by remember { mutableStateOf("") }
     var termsAccepted by remember { mutableStateOf(false) }
+
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        coroutineScope.launch {
+            try {
+                viewModel.setErrorMessage(null) // Clear previous errors
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                val account = task.getResult(ApiException::class.java)
+                val idToken = account.idToken
+                if (idToken != null) {
+                    Log.d("RegisterScreen", "Google ID Token: ${idToken.take(10)}...")
+                    val signInResult = userRepository.signInWithGoogle(idToken)
+                    if (signInResult.isSuccess) {
+                        onRegisterSuccess()
+                    } else {
+                        viewModel.setErrorMessage(signInResult.exceptionOrNull()?.message ?: "Error en Google Sign-In")
+                        Log.e("RegisterScreen", "Sign-in failed: ${signInResult.exceptionOrNull()?.message}")
+                    }
+                } else {
+                    viewModel.setErrorMessage(context.getString(R.string.error_no_id_token))
+                    Log.e("RegisterScreen", "No ID token received")
+                }
+            } catch (e: ApiException) {
+                viewModel.setErrorMessage("Error de Google Sign-In: ${e.statusCode} - ${e.message}")
+                Log.e("RegisterScreen", "ApiException: ${e.statusCode} - ${e.message}", e)
+            } catch (e: Exception) {
+                viewModel.setErrorMessage("Error inesperado: ${e.message}")
+                Log.e("RegisterScreen", "Unexpected error: ${e.message}", e)
+            }
+        }
+    }
 
     val scrollState = rememberScrollState()
 
@@ -76,7 +120,6 @@ fun RegisterScreen(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
-                // Personal data fields
                 OutlinedTextField(
                     value = nombre,
                     onValueChange = { nombre = it },
@@ -122,7 +165,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-
                 OutlinedTextField(
                     value = edad,
                     onValueChange = { edad = it },
@@ -136,7 +178,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Display location
                 locationData?.let { (city, locality) ->
                     Text(
                         text = "Ubicación detectada: $city, $locality",
@@ -151,7 +192,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Terms and conditions
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -169,7 +209,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Error message
                 errorMessage?.let { message ->
                     Text(
                         text = when (message) {
@@ -190,13 +229,11 @@ fun RegisterScreen(
                     else stringResource(R.string.register_button),
                     onClick = {
                         if (password != confirmPassword) {
-                            viewModel.clearErrorMessage()
-                            viewModel.errorMessage.value
+                            viewModel.setErrorMessage(context.getString(R.string.error_password_mismatch))
                             return@PrimaryButton
                         }
                         if (!termsAccepted) {
-                            viewModel.clearErrorMessage()
-                            viewModel.errorMessage.value
+                            viewModel.setErrorMessage(context.getString(R.string.error_terms_not_accepted))
                             return@PrimaryButton
                         }
 
@@ -212,6 +249,40 @@ fun RegisterScreen(
                             password.isNotEmpty() && confirmPassword.isNotEmpty() && edad.isNotEmpty() &&
                             termsAccepted && locationData != null
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        val signInIntent = userRepository.getGoogleSignInClient().signInIntent
+                        googleSignInLauncher.launch(signInIntent)
+                    },
+                    enabled = !isLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    shape = MaterialTheme.shapes.small
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.googlesymbol),
+                            contentDescription = "Google Logo",
+                            tint = Color.Unspecified
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.sign_in_with_google),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 

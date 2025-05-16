@@ -80,8 +80,8 @@
     <string name="goal_selection_subtitle">Escoja su meta pa\' comer sabroso y saludable</string>
     <string name="weight_loss_option">Comer dizque \'Fit\'</string>
     <string name="vegetarian_option">Comer sin pensarlo mucho</string>
-    <string name="weight_loss_desc">Icono de bajar de peso</string>
-    <string name="vegetarian_desc">Icono de comida vegetariana</string>
+    <string name="weight_loss_desc">Cositas ricas pero que no engordan</string>
+    <string name="vegetarian_desc">De todo pa todos</string>
     <string name="continue_button">¡Siga pues!</string>
     <string name="error_no_goal_selected">Escoja una meta, no sea fiambre</string>
 
@@ -121,6 +121,18 @@
     <string name="reminder_meal_time">¡Ojo! Hora de comer: %s</string>
     <string name="reminder_water">Echese un vaso de agua, pa\' que no se deshidrate</string>
     <string name="reminder_exercise">Mueva el esqueleto, ¡30 minutos!</string>
+    <!-- Editar perfil -->
+
+    <string name="edit_profile_title">Póngase bonito el perfil</string>
+    <string name="name_label">¿Cómo lo llaman?</string>
+    <string name="name_required">Ese nombre no puede faltar, parce</string>
+    <string name="email_label">Correo, pa’ ubicarlo</string>
+    <string name="email_invalid">Ese correo está raro, revíselo</string>
+    <string name="password_label">Clave nueva (si quiere)</string>
+    <string name="password_optional">Opcional: déjela vacía si no va a cambiarla</string>
+    <string name="city_label">Ciudad, pa’ saber dónde anda</string>
+    <string name="locality_label">¿Y la localidad cuál es?</string>
+    <string name="save_button">¡Listo, guarde eso!</string>
 
     <!-- Configuración -->
     <string name="settings_title">Ajustes</string>
@@ -142,5 +154,9 @@
     <string name="instructions_title">Así se hace, paso a paso</string>
     <string name="save_recipe_button">Guárdela pa\' no perderla</string>
     <string name="change_meal_type">Cambiar el tipo de comida</string>
+    <string name="error_google_sign_in_failed">Uy algo pasó con este loggin</string>
+    <string name="sign_in_with_google">Pa dentro Google</string>
+    <string name="error_no_id_token">No hay token de google</string>
+
 
 </resources>
