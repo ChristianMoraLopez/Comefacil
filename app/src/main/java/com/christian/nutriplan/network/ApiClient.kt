@@ -91,7 +91,7 @@ object ApiClient {
             return _client
         }
 
-    const val BASE_URL = "https://nutriplanbackend.fly.dev"
+    const val BASE_URL = "https://04c1-2800-484-e869-da00-7132-d0f6-cc46-2803.ngrok-free.app"
 }
 
 @kotlinx.serialization.Serializable

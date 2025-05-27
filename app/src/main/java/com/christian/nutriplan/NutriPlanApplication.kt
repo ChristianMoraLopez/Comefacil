@@ -63,5 +63,5 @@ val appModule = module {
     single { UserViewModel(get(), get()) }
     viewModel { SavedRecipesViewModel(get()) }
     single { SavedRecipesRepository(get()) }
-    single { RecipeViewModel(get(), get(), get(),get(), get()) }
+    single { RecipeViewModel(get(), get(), get(),get()) }
 }

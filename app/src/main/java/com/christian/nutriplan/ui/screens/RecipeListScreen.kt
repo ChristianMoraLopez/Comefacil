@@ -546,7 +546,7 @@ private fun AnimatedRecipeCard(
 }
 
 @Composable
-private fun EnhancedRecipeAvatar(
+internal fun EnhancedRecipeAvatar(
     receta: Receta,
     index: Int
 ) {

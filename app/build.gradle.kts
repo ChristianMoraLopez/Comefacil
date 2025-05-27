@@ -14,8 +14,8 @@ android {
         applicationId = "com.christian.nutriplan"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -60,6 +60,8 @@ android {
 
 dependencies {
     // Core Android
+    // Specify Compose library dependencies without a version definition
+    implementation("androidx.compose.foundation:foundation")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

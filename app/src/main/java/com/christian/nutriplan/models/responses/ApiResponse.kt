@@ -34,6 +34,16 @@ sealed class ApiResponse<out T> {
     )
 
     @Serializable
+    data class RecetaGuardadaResponse(
+        val guardadoId: Int? = null,
+        val usuarioId: Int,
+        val recetaId: Int,
+        val fechaGuardado: String? = null,
+        val comentarioPersonal: String? = null,
+        val nombreReceta: String
+    )
+
+    @Serializable
     data class Tokens(
         val accessToken: String,
         val refreshToken: String

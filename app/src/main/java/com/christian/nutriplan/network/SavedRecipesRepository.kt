@@ -2,16 +2,17 @@ package com.christian.nutriplan.network
 
 import android.util.Log
 import com.christian.nutriplan.models.RecetaGuardada
-import com.christian.nutriplan.network.ApiClient.client
-import io.ktor.client.*
+import com.christian.nutriplan.models.responses.ApiResponse
 import io.ktor.client.call.*
-import io.ktor.client.network.sockets.*
-import io.ktor.client.plugins.*
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.JsonConvertException
-import javax.inject.Inject
 import java.net.UnknownHostException
+import javax.inject.Inject
 
 class SavedRecipesRepository @Inject constructor(
     private val userRepository: UserRepository
@@ -58,9 +59,10 @@ class SavedRecipesRepository @Inject constructor(
             }
         }
     }
-    suspend fun getSavedRecipes(userId: String, token: String): Result<List<RecetaGuardada>> {
+
+    suspend fun getSavedRecipes(userId: String, token: String): Result<List<ApiResponse.RecetaGuardadaResponse>> {
         return try {
-            val response = client.get {
+            val response = ApiClient.client.get {
                 url("${ApiClient.BASE_URL}$RECETAS_GUARDADAS_ENDPOINT")
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
@@ -68,7 +70,7 @@ class SavedRecipesRepository @Inject constructor(
 
             when (response.status) {
                 HttpStatusCode.OK -> {
-                    val savedRecipes = response.body<List<RecetaGuardada>>()
+                    val savedRecipes = response.body<List<ApiResponse.RecetaGuardadaResponse>>()
                     Log.d(TAG, "Recetas guardadas obtenidas: ${savedRecipes.size}")
                     Result.success(savedRecipes)
                 }
@@ -93,7 +95,7 @@ class SavedRecipesRepository @Inject constructor(
 
     suspend fun deleteSavedRecipe(guardadoId: Int, token: String): Result<Unit> {
         return try {
-            val response = client.delete {
+            val response = ApiClient.client.delete {
                 url("${ApiClient.BASE_URL}$RECETAS_GUARDADAS_ENDPOINT/$guardadoId")
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)

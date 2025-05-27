@@ -13,6 +13,7 @@ import io.ktor.client.request.*
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.http.*
 import java.net.UnknownHostException
+import kotlin.String
 
 class RecipeRepository {
     private val TAG = "RecipeRepository"
@@ -89,7 +90,8 @@ class RecipeRepository {
                 usuarioId = userId,
                 recetaId = recetaId,
                 fechaGuardado = null, // Set by backend
-                comentarioPersonal = null // Optional field
+                comentarioPersonal = null,
+                nombreReceta = String.toString()
             )
             val response = ApiClient.client.post("${ApiClient.BASE_URL}$RECETAS_GUARDADAS_ENDPOINT") {
                 header("Authorization", "Bearer $token")

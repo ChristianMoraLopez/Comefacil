@@ -7,25 +7,20 @@ import com.christian.nutriplan.AppState
 import com.christian.nutriplan.models.Ingrediente
 import com.christian.nutriplan.models.MealType
 import com.christian.nutriplan.models.Receta
-import com.christian.nutriplan.models.RecetaGuardada
 import com.christian.nutriplan.models.TipoComida
 import com.christian.nutriplan.network.IngredientRepository
 import com.christian.nutriplan.network.RecetaIngredientesRepository
 import com.christian.nutriplan.network.RecipeRepository
-import com.christian.nutriplan.network.SavedRecipesRepository
 import com.christian.nutriplan.utils.AuthManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class RecipeViewModel(
     private val recipeRepository: RecipeRepository,
     private val ingredientRepository: IngredientRepository,
     private val recetaIngredientesRepository: RecetaIngredientesRepository,
-    private val savedRecipesRepository: SavedRecipesRepository,
     private val context: Context
 ) : ViewModel() {
     private val _recetas = MutableStateFlow<List<Receta>>(emptyList())
@@ -49,8 +44,8 @@ class RecipeViewModel(
     private val _ingredientesReceta = MutableStateFlow<List<IngredienteConCantidad>>(emptyList())
     val ingredientesReceta: StateFlow<List<IngredienteConCantidad>> = _ingredientesReceta
 
-    private val _isRecipeSaved = MutableStateFlow(false) // New state
-    val isRecipeSaved: StateFlow<Boolean> = _isRecipeSaved.asStateFlow() // New state
+    private val _isRecipeSaved = MutableStateFlow(false)
+    val isRecipeSaved: StateFlow<Boolean> = _isRecipeSaved.asStateFlow()
 
     data class IngredienteConCantidad(
         val nombre: String,
@@ -136,26 +131,17 @@ class RecipeViewModel(
                     return@launch
                 }
 
-                // Get token first
                 val token = getToken()
                 if (token == null) {
                     _errorMessage.value = "No autenticado. Por favor inicia sesión."
                     return@launch
                 }
 
-                val recetaGuardada = RecetaGuardada(
-                    guardadoId = null,
-                    usuarioId = userIdInt,
-                    recetaId = recetaId,
-                    fechaGuardado = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                    comentarioPersonal = null
-                )
-
-                val result = savedRecipesRepository.saveRecipe(recetaGuardada)
+                val result = recipeRepository.saveFavoriteRecipe(recetaId, userIdInt, token)
                 result.fold(
                     onSuccess = {
                         _errorMessage.value = "Receta guardada con éxito"
-                        _isRecipeSaved.value = true // Update the state here
+                        _isRecipeSaved.value = true
                     },
                     onFailure = { throwable ->
                         _errorMessage.value = throwable.message
@@ -168,9 +154,7 @@ class RecipeViewModel(
             }
         }
     }
-    private fun getToken(): String? {
-        return AuthManager.getAccessToken(context)
-    }
+
     fun checkIfRecipeSaved(recetaId: Int, userId: String) {
         viewModelScope.launch {
             val token = getToken()
@@ -180,7 +164,7 @@ class RecipeViewModel(
             }
 
             try {
-                val isSaved = recipeRepository.isRecipeSaved(recetaId, userId, token) // Assuming this now requires token
+                val isSaved = recipeRepository.isRecipeSaved(recetaId, userId, token)
                 _isRecipeSaved.value = isSaved
             } catch (e: Exception) {
                 _errorMessage.value = "Error al verificar receta guardada: ${e.message}"
@@ -223,5 +207,9 @@ class RecipeViewModel(
 
     fun clearErrorMessage() {
         _errorMessage.value = null
+    }
+
+    private fun getToken(): String? {
+        return AuthManager.getAccessToken(context)
     }
 }

@@ -2,7 +2,7 @@ package com.christian.nutriplan.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.christian.nutriplan.models.RecetaGuardada
+import com.christian.nutriplan.models.responses.ApiResponse
 import com.christian.nutriplan.network.SavedRecipesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,8 +14,8 @@ class SavedRecipesViewModel @Inject constructor(
     private val repository: SavedRecipesRepository
 ) : ViewModel() {
 
-    private val _savedRecipes = MutableStateFlow<List<RecetaGuardada>>(emptyList())
-    val savedRecipes: StateFlow<List<RecetaGuardada>> = _savedRecipes.asStateFlow()
+    private val _savedRecipes = MutableStateFlow<List<ApiResponse.RecetaGuardadaResponse>>(emptyList())
+    val savedRecipes: StateFlow<List<ApiResponse.RecetaGuardadaResponse>> = _savedRecipes.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -38,11 +38,8 @@ class SavedRecipesViewModel @Inject constructor(
             )
         }
     }
-    fun setErrorMessage(message: String?) {
-        _errorMessage.value = message
-    }
 
-    fun deleteSavedRecipe(guardadoId: Int, userId: String, token: String) {
+    fun deleteSavedRecipe(guardadoId: Int, token: String) {
         viewModelScope.launch {
             _isLoading.value = true
             val result = repository.deleteSavedRecipe(guardadoId, token)
@@ -56,6 +53,10 @@ class SavedRecipesViewModel @Inject constructor(
                 }
             )
         }
+    }
+
+    fun setErrorMessage(message: String?) {
+        _errorMessage.value = message
     }
 
     fun clearErrorMessage() {

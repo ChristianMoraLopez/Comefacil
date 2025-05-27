@@ -8,5 +8,6 @@ data class RecetaGuardada(
     val usuarioId: Int,
     val recetaId: Int,
     val fechaGuardado: String? = null,
-    val comentarioPersonal: String? = null
+    val comentarioPersonal: String? = null,
+    val nombreReceta: String
 )
