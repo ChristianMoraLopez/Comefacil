@@ -29,6 +29,7 @@ import com.christian.nutriplan.utils.AuthManager
 import org.koin.compose.koinInject
 import android.Manifest
 import android.widget.Toast
+import com.christian.nutriplan.ui.screens.SavedRecipesScreen
 
 object NavRoutes {
     const val HOME = "home"
@@ -40,6 +41,7 @@ object NavRoutes {
     const val RECIPE_LIST = "recipe_list/{mealType}"
     const val RECIPE_DETAIL = "recipe_detail/{recetaId}"
     const val EDIT_PROFILE = "edit_profile/{userId}"
+    const val SAVED_RECIPES = "savedrecipes"
 }
 
 @Composable
@@ -176,5 +178,11 @@ fun AppNavigation() {
         composable(NavRoutes.ABOUT_ME) {
             AboutMeScreen(navController = navController)
         }
+
+        composable (NavRoutes.SAVED_RECIPES)
+        {
+            SavedRecipesScreen(navController = navController)
+        }
+
     }
 }

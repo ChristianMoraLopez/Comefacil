@@ -20,6 +20,9 @@
     <string name="error_network">Uy, no… no hay señal, qué mamera</string>
     <string name="error_email_taken">Parce, ese correo ya lo madrugaron</string>
     <string name="logo_desc">Logo bien bacano de NutriPlan</string>
+    <string name="saved_recipes_title">Mis recetas guardadas, papá</string>
+    <string name="no_saved_recipes">No ha guardado ni una, ¿qué pasó ahí?</string>
+
 
     <!-- New login screen strings -->
     <string name="welcome_back">¡Quihubo parce! ¿Listo pa\' comer rico?</string>

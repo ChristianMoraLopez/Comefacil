@@ -77,13 +77,16 @@ object AuthManager {
             return
         }
 
-        val expiresAt = jwt.expiresAt?.time ?: System.currentTimeMillis() + 3600_000 // 1 hora por defecto
+        // Extract user ID from JWT if not provided
+        val userIdToSave = userId ?: jwt.subject
+
+        val expiresAt = jwt.expiresAt?.time ?: System.currentTimeMillis() + 3600_000
 
         getSecurePreferences(context).edit {
             putString(ACCESS_TOKEN_KEY, accessToken)
             putString(REFRESH_TOKEN_KEY, refreshToken)
             putLong(TOKEN_EXPIRATION_KEY, expiresAt)
-            userId?.let { putString(USER_ID_KEY, it) }
+            userIdToSave?.let { putString(USER_ID_KEY, it) }
         }
     }
 

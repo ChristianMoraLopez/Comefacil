@@ -1,0 +1,59 @@
+app/src/main/java/com/christian
+└── nutriplan
+    ├── MainActivity.kt
+    ├── NutriPlanApplication.kt
+    ├── db
+    ├── models
+    │   ├── CategoriaIngrediente.kt
+    │   ├── Ingrediente.kt
+    │   ├── LocationModels.kt
+    │   ├── MetodoPreparacion.kt
+    │   ├── Objetivo.kt
+    │   ├── Receta.kt
+    │   ├── RecetaGuardada.kt
+    │   ├── RecetaIngrediente.kt
+    │   ├── SeleccionIngrediente.kt
+    │   ├── Usuario.kt
+    │   └── responses
+    │       └── ApiResponse.kt
+    ├── network
+    │   ├── ApiClient.kt
+    │   ├── BaseRepository.kt
+    │   ├── CategoryRepository.kt
+    │   ├── IngredientRepository.kt
+    │   ├── MethodRepository.kt
+    │   ├── RecetaIngredientesRepository.kt
+    │   ├── RecipeRepository.kt
+    │   └── UserRepository.kt
+    ├── services
+    │   └── LocationService.kt
+    ├── ui
+    │   ├── AppNavigation.kt
+    │   ├── components
+    │   │   ├── Components.kt
+    │   │   └── NutriCard.kt
+    │   ├── screens
+    │   │   ├── AboutMeScreen.kt
+    │   │   ├── DashboardScreen.kt
+    │   │   ├── EditProfileScreen.kt
+    │   │   ├── GoalSelectionScreen.kt
+    │   │   ├── HomeScreen.kt
+    │   │   ├── LoginScreen.kt
+    │   │   ├── RecipeDetailScreen.kt
+    │   │   ├── RecipeListScreen.kt
+    │   │   └── RegisterScreen.kt
+    │   ├── theme
+    │   │   ├── Color.kt
+    │   │   ├── Font.kt
+    │   │   ├── Theme.kt
+    │   │   └── Type.kt
+    │   └── viewmodels
+    │       ├── RecipeViewModel.kt
+    │       └── UserViewModel.kt
+    └── utils
+        ├── AppState.kt
+        ├── AuthManager.kt
+        ├── Extensions.kt
+        └── JwtUtils.kt
+
+13 directories, 44 files

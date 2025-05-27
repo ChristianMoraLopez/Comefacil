@@ -1,0 +1,68 @@
+.
+├── app
+│   ├── build.gradle.kts
+│   ├── google-services.json
+│   ├── proguard-rules.pro
+│   ├── release
+│   ├── sampledata
+│   └── src
+│       ├── androidTest
+│       │   └── java
+│       │       └── com
+│       │           └── christian
+│       │               └── nutriplan
+│       │                   └── ExampleInstrumentedTest.kt
+│       ├── main
+│       │   ├── AndroidManifest.xml
+│       │   ├── java
+│       │   │   └── com
+│       │   │       └── christian
+│       │   │           └── nutriplan
+│       │   │               ├── MainActivity.kt
+│       │   │               ├── NutriPlanApplication.kt
+│       │   │               ├── db
+│       │   │               ├── models
+│       │   │               ├── network
+│       │   │               ├── services
+│       │   │               ├── ui
+│       │   │               └── utils
+│       │   └── res
+│       │       ├── drawable
+│       │       │   ├── ic_google.xml
+│       │       │   ├── ic_launcher_background.xml
+│       │       │   └── ic_launcher_foreground.xml
+│       │       ├── font
+│       │       ├── google-services.json
+│       │       ├── layout-ldltr
+│       │       │   └── activity_main.xml
+│       │       ├── mipmap-anydpi-v26
+│       │       │   ├── ic_launcher.xml
+│       │       │   └── ic_launcher_round.xml
+│       │       ├── mipmap-hdpi
+│       │       ├── mipmap-mdpi
+│       │       ├── mipmap-xhdpi
+│       │       ├── mipmap-xxhdpi
+│       │       ├── mipmap-xxxhdpi
+│       │       ├── values
+│       │       │   ├── colors.xml
+│       │       │   ├── ic_launcher_background.xml
+│       │       │   ├── strings.xml
+│       │       │   ├── styles.xml
+│       │       │   └── themes.xml
+│       │       └── xml
+│       │           ├── backup_rules.xml
+│       │           └── data_extraction_rules.xml
+│       └── test
+│           └── java
+│               └── com
+│                   └── christian
+│                       └── nutriplan
+│                           └── ExampleUnitTest.kt
+├── build.gradle.kts
+├── google-services.json
+├── gradle
+│   ├── libs.versions.toml
+│   └── wrapper
+└── settings.gradle.kts
+
+40 directories, 26 files

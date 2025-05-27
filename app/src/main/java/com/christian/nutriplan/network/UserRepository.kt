@@ -74,16 +74,13 @@ class UserRepository(private val context: Context) : BaseRepository() {
 
     suspend fun signInWithGoogle(googleIdToken: String): Result<Pair<Usuario, String>> = withContext(Dispatchers.IO) {
         try {
-            // Authenticate with Firebase using the Google ID token
             val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
             val authResult = firebaseAuth.signInWithCredential(credential).await()
             val firebaseUser = authResult.user ?: return@withContext Result.failure(Exception("Firebase authentication failed: No user returned"))
 
-            // Get the Firebase ID token
             val firebaseIdToken = firebaseUser.getIdToken(false).await().token
                 ?: return@withContext Result.failure(Exception("Failed to retrieve Firebase ID token"))
 
-            // Send the Firebase ID token to your backend
             Log.d(TAG, "Sending POST to ${ApiClient.BASE_URL}$GOOGLE_LOGIN_BACKEND_ENDPOINT with Firebase ID token: ${firebaseIdToken.take(15)}...")
             val response = ApiClient.client.post("${ApiClient.BASE_URL}$GOOGLE_LOGIN_BACKEND_ENDPOINT") {
                 contentType(ContentType.Application.Json)
@@ -97,7 +94,8 @@ class UserRepository(private val context: Context) : BaseRepository() {
                     val user = apiResponse.data.usuario
                     val appToken = apiResponse.data.token
                     Log.d(TAG, "Success: User=${user.email}, Token=${appToken.take(10)}...")
-                    authManager.saveAuthData(context, appToken, "")
+                    // Guardar el userId junto con los tokens
+                    authManager.saveAuthData(context, appToken, "", user.usuarioId.toString())
                     Result.success(user to appToken)
                 }
                 HttpStatusCode.Unauthorized -> {
@@ -116,6 +114,8 @@ class UserRepository(private val context: Context) : BaseRepository() {
             Result.failure(Exception(handleNetworkError(e)))
         }
     }
+
+
     // La función registerUser se mantiene para el registro tradicional con email/contraseña
     suspend fun registerUser(usuario: Usuario): Result<Pair<Usuario, String>> = withContext(Dispatchers.IO) {
         try {
@@ -173,7 +173,8 @@ class UserRepository(private val context: Context) : BaseRepository() {
                     authManager.saveAuthData(
                         context = context,
                         accessToken = apiResponse.data.token,
-                        refreshToken = "" // Asumir que el login normal no devuelve refresh token o se maneja diferente
+                        refreshToken = "",
+                        userId = apiResponse.data.usuario.usuarioId.toString()
                     )
                     Result.success(apiResponse.data.usuario to apiResponse.data.token)
                 }
@@ -189,7 +190,6 @@ class UserRepository(private val context: Context) : BaseRepository() {
             Result.failure(Exception(handleNetworkError(e)))
         }
     }
-
     suspend fun getCurrentUser(token: String): Result<Usuario> {
         return try {
             Log.d(TAG, "Sending GET to ${ApiClient.BASE_URL}$CURRENT_USER_ENDPOINT")
@@ -312,7 +312,7 @@ class UserRepository(private val context: Context) : BaseRepository() {
         }
     }
 
-    private suspend fun <T> tryWithTokenRefresh(block: suspend () -> Result<T>): Result<T> {
+    internal suspend fun <T> tryWithTokenRefresh(block: suspend () -> Result<T>): Result<T> {
         var result = block()
         val exception = result.exceptionOrNull()
 

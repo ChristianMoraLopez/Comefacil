@@ -1,24 +1,32 @@
 package com.christian.nutriplan.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.christian.nutriplan.AppState
 import com.christian.nutriplan.models.Ingrediente
 import com.christian.nutriplan.models.MealType
 import com.christian.nutriplan.models.Receta
-import com.christian.nutriplan.models.RecetaIngrediente
+import com.christian.nutriplan.models.RecetaGuardada
 import com.christian.nutriplan.models.TipoComida
 import com.christian.nutriplan.network.IngredientRepository
 import com.christian.nutriplan.network.RecetaIngredientesRepository
 import com.christian.nutriplan.network.RecipeRepository
+import com.christian.nutriplan.network.SavedRecipesRepository
+import com.christian.nutriplan.utils.AuthManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class RecipeViewModel(
     private val recipeRepository: RecipeRepository,
     private val ingredientRepository: IngredientRepository,
-    private val recetaIngredientesRepository: RecetaIngredientesRepository
+    private val recetaIngredientesRepository: RecetaIngredientesRepository,
+    private val savedRecipesRepository: SavedRecipesRepository,
+    private val context: Context
 ) : ViewModel() {
     private val _recetas = MutableStateFlow<List<Receta>>(emptyList())
     val recetas: StateFlow<List<Receta>> = _recetas
@@ -32,11 +40,17 @@ class RecipeViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _isLoadingIngredients = MutableStateFlow(false)
+    val isLoadingIngredients: StateFlow<Boolean> = _isLoadingIngredients
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
     private val _ingredientesReceta = MutableStateFlow<List<IngredienteConCantidad>>(emptyList())
     val ingredientesReceta: StateFlow<List<IngredienteConCantidad>> = _ingredientesReceta
+
+    private val _isRecipeSaved = MutableStateFlow(false) // New state
+    val isRecipeSaved: StateFlow<Boolean> = _isRecipeSaved.asStateFlow() // New state
 
     data class IngredienteConCantidad(
         val nombre: String,
@@ -113,7 +127,7 @@ class RecipeViewModel(
         }
     }
 
-    fun saveFavoriteRecipe(recetaId: Int, userId: String, token: String) {
+    fun saveFavoriteRecipe(recetaId: Int, userId: String) {
         viewModelScope.launch {
             try {
                 val userIdInt = userId.toIntOrNull()
@@ -121,29 +135,66 @@ class RecipeViewModel(
                     _errorMessage.value = "ID de usuario inválido"
                     return@launch
                 }
-                val result = recipeRepository.saveFavoriteRecipe(recetaId, userIdInt, token)
+
+                // Get token first
+                val token = getToken()
+                if (token == null) {
+                    _errorMessage.value = "No autenticado. Por favor inicia sesión."
+                    return@launch
+                }
+
+                val recetaGuardada = RecetaGuardada(
+                    guardadoId = null,
+                    usuarioId = userIdInt,
+                    recetaId = recetaId,
+                    fechaGuardado = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                    comentarioPersonal = null
+                )
+
+                val result = savedRecipesRepository.saveRecipe(recetaGuardada)
                 result.fold(
                     onSuccess = {
                         _errorMessage.value = "Receta guardada con éxito"
+                        _isRecipeSaved.value = true // Update the state here
                     },
                     onFailure = { throwable ->
                         _errorMessage.value = throwable.message
+                        _isRecipeSaved.value = false
                     }
                 )
             } catch (e: Exception) {
                 _errorMessage.value = "Error inesperado: ${e.message}"
+                _isRecipeSaved.value = false
+            }
+        }
+    }
+    private fun getToken(): String? {
+        return AuthManager.getAccessToken(context)
+    }
+    fun checkIfRecipeSaved(recetaId: Int, userId: String) {
+        viewModelScope.launch {
+            val token = getToken()
+            if (token == null) {
+                _errorMessage.value = "No autenticado. Por favor inicia sesión."
+                return@launch
+            }
+
+            try {
+                val isSaved = recipeRepository.isRecipeSaved(recetaId, userId, token) // Assuming this now requires token
+                _isRecipeSaved.value = isSaved
+            } catch (e: Exception) {
+                _errorMessage.value = "Error al verificar receta guardada: ${e.message}"
             }
         }
     }
 
     fun fetchIngredientesForReceta(recetaId: Int) {
         viewModelScope.launch {
-            _isLoading.value = true
+            _isLoadingIngredients.value = true
             try {
                 val result = recetaIngredientesRepository.getIngredientesForReceta(recetaId)
                 result.fold(
                     onSuccess = { ingredientes ->
-                        // Mapeamos directamente los datos recibidos del endpoint
                         val ingredientesConNombre = ingredientes.map {
                             IngredienteConCantidad(
                                 nombre = it.nombreIngrediente ?: "Ingrediente desconocido",
@@ -152,6 +203,7 @@ class RecipeViewModel(
                             )
                         }
                         _ingredientesReceta.value = ingredientesConNombre
+                        _ingredientes.value = _ingredientes.value + (recetaId to ingredientesConNombre)
                     },
                     onFailure = { throwable ->
                         _errorMessage.value = "Error al obtener ingredientes: ${throwable.message}"
@@ -160,7 +212,7 @@ class RecipeViewModel(
             } catch (e: Exception) {
                 _errorMessage.value = "Error inesperado: ${e.message}"
             } finally {
-                _isLoading.value = false
+                _isLoadingIngredients.value = false
             }
         }
     }

@@ -42,6 +42,10 @@ class RecipeRepository {
         }
     }
 
+
+
+
+
     suspend fun getTiposComida(): Result<List<TipoComida>> {
         return try {
             val response = ApiClient.client.get("${ApiClient.BASE_URL}$TIPOS_COMIDA_ENDPOINT")
@@ -81,9 +85,11 @@ class RecipeRepository {
     suspend fun saveFavoriteRecipe(recetaId: Int, userId: Int, token: String): Result<Unit> {
         return try {
             val recetaGuardada = RecetaGuardada(
-                recetaGuardadaId = null, // El backend asignará el ID
+                guardadoId = null, // El backend asignará el ID
                 usuarioId = userId,
-                recetaId = recetaId
+                recetaId = recetaId,
+                fechaGuardado = null, // Set by backend
+                comentarioPersonal = null // Optional field
             )
             val response = ApiClient.client.post("${ApiClient.BASE_URL}$RECETAS_GUARDADAS_ENDPOINT") {
                 header("Authorization", "Bearer $token")
@@ -101,6 +107,29 @@ class RecipeRepository {
             Result.failure(Exception(handleNetworkError(e)))
         }
     }
+
+    suspend fun isRecipeSaved(recetaId: Int, userId: String, token: String): Boolean {
+        return try {
+            val response = ApiClient.client.get("${ApiClient.BASE_URL}$RECETAS_GUARDADAS_ENDPOINT") {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.Application.Json)
+            }
+            when (response.status) {
+                HttpStatusCode.OK -> {
+                    val savedRecipes = response.body<List<RecetaGuardada>>()
+                    savedRecipes.any { it.recetaId == recetaId && it.usuarioId == userId.toIntOrNull() }
+                }
+                else -> {
+                    Log.e(TAG, "Error checking saved recipe: ${response.status}")
+                    false
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in isRecipeSaved: ${e.message}", e)
+            false
+        }
+    }
+
 
     private fun handleNetworkError(e: Exception): String {
         return when (e) {
