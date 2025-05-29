@@ -45,7 +45,7 @@
     <string name="today_meal">El plancito de hoy:</string>
     <string name="calories_count">Esto son %d calorías, ni más ni menos</string>
     <string name="logout_button">Me voy, ¡hasta luego!</string>
-
+    <string name="google_maps_api_key">AIzaSyBgDCzKoA203DuUopCvE3xGVanwKkAEPwI</string>
     <!-- Meal plan strings -->
     <string name="breakfast_title">Desayuno: Pa\' empezar el día</string>
     <string name="lunch_title">Almuerzo: El plato fuerte</string>

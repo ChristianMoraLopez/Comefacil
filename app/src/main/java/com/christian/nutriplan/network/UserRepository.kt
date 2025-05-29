@@ -74,6 +74,7 @@ class UserRepository(private val context: Context) : BaseRepository() {
 
     suspend fun signInWithGoogle(googleIdToken: String): Result<Pair<Usuario, String>> = withContext(Dispatchers.IO) {
         try {
+            // Step 1: Authenticate with Firebase to get a Firebase ID token
             val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
             val authResult = firebaseAuth.signInWithCredential(credential).await()
             val firebaseUser = authResult.user ?: return@withContext Result.failure(Exception("Firebase authentication failed: No user returned"))
@@ -82,30 +83,79 @@ class UserRepository(private val context: Context) : BaseRepository() {
                 ?: return@withContext Result.failure(Exception("Failed to retrieve Firebase ID token"))
 
             Log.d(TAG, "Sending POST to ${ApiClient.BASE_URL}$GOOGLE_LOGIN_BACKEND_ENDPOINT with Firebase ID token: ${firebaseIdToken.take(15)}...")
-            val response = ApiClient.client.post("${ApiClient.BASE_URL}$GOOGLE_LOGIN_BACKEND_ENDPOINT") {
+
+            // Step 2: Try to sign in with the backend
+            val signInResponse = ApiClient.client.post("${ApiClient.BASE_URL}$GOOGLE_LOGIN_BACKEND_ENDPOINT") {
                 contentType(ContentType.Application.Json)
                 setBody(GoogleLoginRequest(firebaseIdToken))
             }
 
-            Log.d(TAG, "Response status: ${response.status}, headers: ${response.headers.entries()}, body: ${response.bodyAsText()}")
-            when (response.status) {
+            Log.d(TAG, "Sign-in response status: ${signInResponse.status}, headers: ${signInResponse.headers.entries()}, body: ${signInResponse.bodyAsText()}")
+
+            when (signInResponse.status) {
                 HttpStatusCode.OK -> {
-                    val apiResponse = response.body<ApiResponse.Success<ApiResponse.LoginServerResponse>>()
+                    val apiResponse = signInResponse.body<ApiResponse.Success<ApiResponse.LoginServerResponse>>()
                     val user = apiResponse.data.usuario
                     val appToken = apiResponse.data.token
                     Log.d(TAG, "Success: User=${user.email}, Token=${appToken.take(10)}...")
-                    // Guardar el userId junto con los tokens
                     authManager.saveAuthData(context, appToken, "", user.usuarioId.toString())
                     Result.success(user to appToken)
                 }
+                HttpStatusCode.NotFound -> {
+                    // User not found, attempt automatic registration
+                    Log.d(TAG, "User not found, attempting registration...")
+                    val usuario = Usuario(
+                        usuarioId = 0, // Backend will assign ID
+                        nombre = firebaseUser.displayName ?: "",
+                        email = firebaseUser.email ?: "",
+                        contrasena = "", // Not needed for Google users
+                        aceptaTerminos = true, // Assume terms accepted
+                    )
+                    val registerResponse = ApiClient.client.post("${ApiClient.BASE_URL}$REGISTER_ENDPOINT") {
+                        contentType(ContentType.Application.Json)
+                        setBody(usuario)
+                    }
+
+                    when (registerResponse.status) {
+                        HttpStatusCode.Created -> {
+                            // Registration successful, attempt login again
+                            Log.d(TAG, "Registration successful, retrying sign-in...")
+                            val retryResponse = ApiClient.client.post("${ApiClient.BASE_URL}$GOOGLE_LOGIN_BACKEND_ENDPOINT") {
+                                contentType(ContentType.Application.Json)
+                                setBody(GoogleLoginRequest(firebaseIdToken))
+                            }
+
+                            when (retryResponse.status) {
+                                HttpStatusCode.OK -> {
+                                    val apiResponse = retryResponse.body<ApiResponse.Success<ApiResponse.LoginServerResponse>>()
+                                    val user = apiResponse.data.usuario
+                                    val appToken = apiResponse.data.token
+                                    Log.d(TAG, "Success after registration: User=${user.email}, Token=${appToken.take(10)}...")
+                                    authManager.saveAuthData(context, appToken, "", user.usuarioId.toString())
+                                    Result.success(user to appToken)
+                                }
+                                else -> {
+                                    val errorBody = retryResponse.bodyAsText()
+                                    Log.e(TAG, "Failed to sign in after registration: ${retryResponse.status}, $errorBody")
+                                    Result.failure(Exception("Failed to sign in after registration: $errorBody"))
+                                }
+                            }
+                        }
+                        else -> {
+                            val errorBody = registerResponse.bodyAsText()
+                            Log.e(TAG, "Registration failed: ${registerResponse.status}, $errorBody")
+                            Result.failure(Exception("Registration failed: $errorBody"))
+                        }
+                    }
+                }
                 HttpStatusCode.Unauthorized -> {
-                    val errorMsg = try { response.body<ApiResponse.Error>().message } catch (e: Exception) { "Google Sign-In failed: Unauthorized" }
+                    val errorMsg = try { signInResponse.body<ApiResponse.Error>().message } catch (e: Exception) { "Google Sign-In failed: Unauthorized" }
                     Log.e(TAG, "Failed: $errorMsg")
                     Result.failure(Exception(errorMsg))
                 }
                 else -> {
-                    val errorBody = response.bodyAsText()
-                    Log.e(TAG, "Failed with status ${response.status}: $errorBody")
+                    val errorBody = signInResponse.bodyAsText()
+                    Log.e(TAG, "Failed with status ${signInResponse.status}: $errorBody")
                     Result.failure(Exception("Google Sign-In failed: $errorBody"))
                 }
             }
@@ -114,7 +164,6 @@ class UserRepository(private val context: Context) : BaseRepository() {
             Result.failure(Exception(handleNetworkError(e)))
         }
     }
-
 
     // La función registerUser se mantiene para el registro tradicional con email/contraseña
     suspend fun registerUser(usuario: Usuario): Result<Pair<Usuario, String>> = withContext(Dispatchers.IO) {

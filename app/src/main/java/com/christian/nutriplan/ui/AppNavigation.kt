@@ -1,6 +1,6 @@
 package com.christian.nutriplan.ui.navigation
 
-import RegisterScreen
+
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -29,6 +29,7 @@ import com.christian.nutriplan.utils.AuthManager
 import org.koin.compose.koinInject
 import android.Manifest
 import android.widget.Toast
+import com.christian.nutriplan.ui.screens.RegisterScreen
 import com.christian.nutriplan.ui.screens.SavedRecipesScreen
 
 object NavRoutes {

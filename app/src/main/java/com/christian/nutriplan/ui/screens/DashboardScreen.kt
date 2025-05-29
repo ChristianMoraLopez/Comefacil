@@ -432,33 +432,28 @@ private fun EnhancedFloatingActionButton(
     )
 
     Box(
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .size(72.dp)
-                .scale(scale)
-                .graphicsLayer(rotationZ = glowRotation)
-                .background(
-                    brush = Brush.sweepGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Green400.copy(alpha = 0.3f),
-                            Color.Transparent,
-                            Green600.copy(alpha = 0.5f),
-                            Color.Transparent
-                        )
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(72.dp)
+            .scale(scale)
+            // Removed rotationZ to avoid potential graphics instability
+            .background(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        Green400.copy(alpha = 0.3f),
+                        Color.Transparent
                     ),
-                    shape = CircleShape
-                )
-        )
-
+                    radius = 36.dp.value // Match the Box size
+                ),
+                shape = CircleShape
+            )
+    ) {
         FloatingActionButton(
             onClick = {
                 isPressed = true
                 onClick()
             },
-            containerColor = Color.Transparent,
+            containerColor = Green600, // Simplified to a solid color
             contentColor = Color.White,
             modifier = Modifier
                 .scale(scale * buttonScale)
@@ -468,18 +463,6 @@ private fun EnhancedFloatingActionButton(
                     shape = CircleShape,
                     ambientColor = Green700.copy(alpha = 0.4f),
                     spotColor = Green500.copy(alpha = 0.3f)
-                )
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Green400,
-                            Green600,
-                            Green700
-                        ),
-                        start = Offset(0f, 0f),
-                        end = Offset(100f, 100f)
-                    ),
-                    shape = CircleShape
                 )
         ) {
             Icon(

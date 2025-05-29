@@ -50,6 +50,7 @@ fun RecipeDetailScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val receta = recetas.find { it.recetaId == recetaId }
     val userId = authManager.getUserId(context)
+    var isSaving by remember { mutableStateOf(false) }
 
     LaunchedEffect(recetaId, userId) {
         println("Fetching ingredients for recetaId: $recetaId")
@@ -63,6 +64,12 @@ fun RecipeDetailScreen(
         println("Ingredients loaded: $ingredientes")
     }
 
+    LaunchedEffect(isRecipeSaved) {
+        if (isRecipeSaved) {
+            isSaving = false // Reset saving state when recipe is saved
+        }
+    }
+
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -71,6 +78,7 @@ fun RecipeDetailScreen(
                     popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 }
             }
+            isSaving = false // Reset saving state on error
             viewModel.clearErrorMessage()
         }
     }
@@ -86,10 +94,12 @@ fun RecipeDetailScreen(
             if (userId == null) {
                 viewModel.setErrorMessage("Usuario no autenticado")
             } else {
+                isSaving = true // Set saving state immediately on click
                 viewModel.saveFavoriteRecipe(recetaId = recetaId, userId = userId)
             }
         },
-        isRecipeSaved = isRecipeSaved
+        isRecipeSaved = isRecipeSaved,
+        isSaving = isSaving
     )
 }
 
@@ -103,7 +113,8 @@ private fun RecipeDetailContent(
     viewModel: RecipeViewModel,
     onBackClick: () -> Unit,
     onSaveRecipe: () -> Unit,
-    isRecipeSaved: Boolean
+    isRecipeSaved: Boolean,
+    isSaving : Boolean
 ) {
     var showTutorialDialog by remember { mutableStateOf(false) }
 
@@ -146,7 +157,8 @@ private fun RecipeDetailContent(
                     onSaveRecipe = onSaveRecipe,
                     onTutorialClick = { showTutorialDialog = true },
                     padding = padding,
-                    isRecipeSaved = isRecipeSaved
+                    isRecipeSaved = isRecipeSaved,
+                    isSaving = isSaving
                 )
             }
         }
@@ -249,7 +261,8 @@ private fun RecipeContent(
     onSaveRecipe: () -> Unit,
     onTutorialClick: () -> Unit,
     padding: PaddingValues,
-    isRecipeSaved: Boolean // Add parameter
+    isRecipeSaved: Boolean,
+    isSaving : Boolean
 ) {
     var isVisible by remember { mutableStateOf(false) }
 
@@ -282,7 +295,8 @@ private fun RecipeContent(
                 viewModel = viewModel,
                 onSaveRecipe = onSaveRecipe,
                 onTutorialClick = onTutorialClick,
-                isRecipeSaved = isRecipeSaved // Pass the saved state
+                isRecipeSaved = isRecipeSaved, // Pass the saved state
+                isSaving=isSaving
             )
         }
     }
@@ -295,7 +309,8 @@ private fun ModernRecipeCard(
     viewModel: RecipeViewModel,
     onSaveRecipe: () -> Unit,
     onTutorialClick: () -> Unit,
-    isRecipeSaved: Boolean // Add parameter
+    isRecipeSaved: Boolean,
+    isSaving: Boolean
 ) {
     Card(
         modifier = Modifier
@@ -335,7 +350,8 @@ private fun ModernRecipeCard(
             ModernActionButtons(
                 onSaveRecipe = onSaveRecipe,
                 onTutorialClick = onTutorialClick,
-                isRecipeSaved = isRecipeSaved // Pass the saved state
+                isRecipeSaved = isRecipeSaved,
+                isSaving = isSaving
             )
         }
     }
@@ -623,7 +639,8 @@ private fun ModernRecipeInstructions(receta: Receta) {
 private fun ModernActionButtons(
     onSaveRecipe: () -> Unit,
     onTutorialClick: () -> Unit,
-    isRecipeSaved: Boolean // Add parameter
+    isRecipeSaved: Boolean,
+    isSaving: Boolean // Add parameter
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -631,10 +648,10 @@ private fun ModernActionButtons(
     ) {
         Button(
             onClick = onSaveRecipe,
-            enabled = !isRecipeSaved, // Disable button if recipe is saved
+            enabled = !isRecipeSaved && !isSaving, // Disable if saved or saving
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
-                disabledContainerColor = Color.Gray.copy(alpha = 0.5f) // Optional: Gray out when disabled
+                disabledContainerColor = Color.Gray.copy(alpha = 0.5f)
             ),
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
@@ -657,15 +674,23 @@ private fun ModernActionButtons(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    Icons.Default.Favorite,
-                    contentDescription = "Guardar receta",
-                    tint = if (isRecipeSaved) Color.White.copy(alpha = 0.7f) else Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
+                if (isSaving) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.Favorite,
+                        contentDescription = "Guardar receta",
+                        tint = if (isRecipeSaved) Color.White.copy(alpha = 0.7f) else Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = stringResource(R.string.save_recipe_button),
+                    text = if (isSaving) "Guardando..." else stringResource(R.string.save_recipe_button),
                     color = if (isRecipeSaved) Color.White.copy(alpha = 0.7f) else Color.White,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
